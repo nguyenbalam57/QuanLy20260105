@@ -29,4 +29,8 @@
     <ProjectReference Include="..\ManagementFile.Models\ManagementFile.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DataBaseFile\" />
+  </ItemGroup>
+
 </Project>
