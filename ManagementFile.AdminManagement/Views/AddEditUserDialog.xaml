@@ -1,0 +1,206 @@
+﻿<Window x:Class="ManagementFile.AdminManagement.Views.AddEditUserDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:enums="clr-namespace:ManagementFile.Contracts.Enums;assembly=ManagementFile.Contracts"
+        mc:Ignorable="d"
+        Title="{Binding DialogTitle}" 
+        Height="600" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#f5f5f5">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <Style x:Key="LabelStyle" TargetType="Label">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="Margin" Value="0,10,0,5"/>
+        </Style>
+
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#ddd"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#ddd"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#ddd"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Background" Value="#007acc"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#007acc"/>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#007acc"/>
+            <Setter Property="BorderBrush" Value="#007acc"/>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="White" Margin="20" CornerRadius="8" >
+        <Border.Effect>
+            <DropShadowEffect Color="Gray" ShadowDepth="2" BlurRadius="5" Opacity="0.3"/>
+        </Border.Effect>
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock Text="{Binding DialogTitle}" 
+                           FontSize="20" 
+                           FontWeight="Bold" 
+                           Foreground="#333"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Điền thông tin đầy đủ và chính xác" 
+                           Foreground="#666" 
+                           HorizontalAlignment="Center"
+                           Margin="0,5,0,0"/>
+            </StackPanel>
+
+            <!-- Form -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Username (only for create mode) -->
+                    <Label Content="Username: *" Style="{StaticResource LabelStyle}"
+                           Visibility="{Binding IsCreateMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource TextBoxStyle}"
+                             IsEnabled="{Binding IsCreateMode}"
+                             Visibility="{Binding IsCreateMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <!-- Email -->
+                    <Label Content="Email: " Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource TextBoxStyle}"/>
+
+                    <!-- Full Name -->
+                    <Label Content="Họ và tên: *" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding FullName, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource TextBoxStyle}"/>
+
+                    <!-- Password (only for create mode) -->
+                    <Label Content="Mật khẩu: *" Style="{StaticResource LabelStyle}"
+                           Visibility="{Binding IsCreateMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <PasswordBox x:Name="PasswordBox"
+                                 Style="{StaticResource PasswordBoxStyle}"
+                                 Visibility="{Binding IsCreateMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <!-- Confirm Password (only for create mode) -->
+                    <Label Content="Xác nhận mật khẩu: *" Style="{StaticResource LabelStyle}"
+                           Visibility="{Binding IsCreateMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <PasswordBox x:Name="ConfirmPasswordBox"
+                                 Style="{StaticResource PasswordBoxStyle}"
+                                 Visibility="{Binding IsCreateMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <!-- Role -->
+                    <Label Content="Vai trò:" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding UserRoles}"
+                              DisplayMemberPath="DisplayText"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding Role, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ComboBoxStyle}">
+                        
+                    </ComboBox>
+
+                    <!-- Department -->
+                    <Label Content="Phòng ban:" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox   ItemsSource="{Binding Departments}"
+                                DisplayMemberPath="DisplayText"
+                                SelectedValuePath="Value"
+                                SelectedValue="{Binding Department, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ComboBoxStyle}">
+                        
+                    </ComboBox>
+
+                    <!-- Phone Number -->
+                    <Label Content="Số điện thoại:" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding PhoneNumber, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource TextBoxStyle}"/>
+
+                    <!-- Position -->
+                    <Label Content="Chức vụ:" Style="{StaticResource LabelStyle}"/>
+                    <TextBox Text="{Binding Position, UpdateSourceTrigger=PropertyChanged}" 
+                             Style="{StaticResource TextBoxStyle}"/>
+
+                    <!-- Manager ID -->
+                    <Label Content="ID Quản lý:" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding Managers}"
+                              DisplayMemberPath="DisplayName"
+                              SelectedValuePath="Id"
+                              SelectedValue="{Binding ManagerId, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ComboBoxStyle}"/>
+
+                    <!-- Language -->
+                    <Label Content="Ngôn ngữ:" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Text="{Binding Language}" Style="{StaticResource ComboBoxStyle}" IsEditable="True">
+                        <ComboBoxItem Content="vi-VN" IsSelected="True"/>
+                        <ComboBoxItem Content="en-US"/>
+                        <ComboBoxItem Content="ja-JP"/>
+                        <ComboBoxItem Content="ko-KR"/>
+                    </ComboBox>
+
+                    <!-- Error Message -->
+                    <TextBlock Text="{Binding ErrorMessage}" 
+                               Foreground="#d32f2f" 
+                               FontSize="12" 
+                               TextWrapping="Wrap"
+                               Margin="0,10,0,0"
+                               Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="2" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right"
+                        Margin="0,20,0,0">
+                
+                <!-- Loading Indicator -->
+                <StackPanel Orientation="Horizontal" 
+                            Margin="0,0,20,0"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <ProgressBar IsIndeterminate="True" Width="60" Height="4" VerticalAlignment="Center"/>
+                    <TextBlock Text="Đang xử lý..." Margin="10,0,0,0" VerticalAlignment="Center" Foreground="#666"/>
+                </StackPanel>
+
+                <Button Content="Hủy" 
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"/>
+                
+                <Button Content="Lưu" 
+                        Command="{Binding SaveCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        IsEnabled="{Binding CanSave}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

@@ -1,0 +1,149 @@
+﻿<UserControl x:Class="ManagementFile.App.Controls.Projects.ProjectMembersControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ManagementFile.App.Controls.Projects"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#34495e"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Members Header -->
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Margin="0,5,0,5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="{Binding MembersSummary}" 
+                                Style="{StaticResource SectionHeaderStyle}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="➕ Thêm Thành Viên" 
+                            Style="{StaticResource SuccessButtonStyle}"
+                            Command="{Binding AddMemberCommand}"/>
+                </StackPanel>
+               
+            </Grid>
+        </Border>
+
+        <!-- Members List -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,5">
+            <DataGrid x:Name="MembersList" 
+                 Style="{StaticResource DataGridStyle}"
+                 ItemsSource="{Binding ProjectMembers}"
+                 SelectedItem="{Binding SelectedMember, Mode=TwoWay}">
+
+                <DataGrid.Columns>
+                    <!-- Avatar -->
+                    <DataGridTemplateColumn Header="👤" Width="50">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Width="32" Height="32" 
+                                   Background="{Binding RoleColor}"
+                                   CornerRadius="16"
+                                   HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding Avatar}" 
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          FontWeight="Bold"
+                                          Foreground="White"/>
+                                </Border>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Full Name -->
+                    <DataGridTextColumn Header="Họ tên" 
+                                   Binding="{Binding FullName}" 
+                                   Width="180"/>
+
+                    <!-- Email -->
+                    <DataGridTextColumn Header="Email" 
+                                   Binding="{Binding Email}" 
+                                   Width="200"/>
+
+                    <!-- Role -->
+                    <DataGridTemplateColumn Header="Vai trò" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding RoleIcon}" Margin="0,0,5,0"/>
+                                    <TextBlock Text="{Binding RoleDisplayName}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <!-- Department -->
+                    <DataGridTextColumn Header="Phòng ban" 
+                                   Binding="{Binding DepartmentDisplayName}" 
+                                   Width="100"/>
+
+                    <!-- Tasks Stats -->
+                    <DataGridTextColumn Header="Tasks" 
+                                   Binding="{Binding TasksStats}" 
+                                   Width="80"/>
+
+                    <!-- Joined Date -->
+                    <DataGridTextColumn Header="Tham gia" 
+                                   Binding="{Binding JoinedAtDisplayText}" 
+                                   Width="100"/>
+
+                    <!-- Last Activity -->
+                    <DataGridTextColumn Header="Hoạt động cuối" 
+                                   Binding="{Binding LastActivityDisplayText}" 
+                                   Width="120"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Member Actions -->
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="👤 Đã chọn:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding SelectedMemberInfo}" 
+                      VerticalAlignment="Center" 
+                      FontWeight="SemiBold"
+                      Foreground="#2c3e50"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" 
+                   Orientation="Horizontal"
+                   IsEnabled="{Binding HasSelectedMember}">
+                    <Button Content="✏️ Chỉnh sửa" 
+                   Style="{StaticResource PrimaryButtonStyle}"
+                   Command="{Binding UpdateMemberCommand}"/>
+                    <Button Content="🗑️ Xóa khỏi dự án" 
+                   Style="{StaticResource DangerButtonStyle}"
+                   Command="{Binding RemoveMemberCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

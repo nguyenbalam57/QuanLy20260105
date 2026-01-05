@@ -1,0 +1,174 @@
+﻿<UserControl x:Class="ManagementFile.App.Controls.TagInputControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ManagementFile.App.Controls"
+             xmlns:conv="clr-namespace:ManagementFile.App.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="80" d:DesignWidth="400">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <conv:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Input area -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- TextBox for tag input -->
+            <TextBox x:Name="TagInputTextBox" 
+                     Grid.Column="0"
+                     Text="{Binding TagText, UpdateSourceTrigger=PropertyChanged}"
+                     FontFamily="Segoe UI"
+                     FontSize="13"
+                     Padding="12,10"
+                     Height="40"
+                     VerticalContentAlignment="Center"
+                     BorderBrush="#BDC3C7"
+                     BorderThickness="1"
+                     IsReadOnly="{Binding IsReadOnly}"
+                     IsEnabled="{Binding IsEnabled}"
+                     Background="{Binding IsReadOnly, Converter={StaticResource InverseBooleanConverter}, 
+                                  ConverterParameter='#F8F9FA|White'}"
+                     KeyDown="TagInputTextBox_KeyDown"
+                     GotFocus="TagInputTextBox_GotFocus">
+                <TextBox.Resources>
+                    <Style TargetType="TextBox">
+                        <Style.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#3498DB"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBox.Resources>
+            </TextBox>
+
+            <!-- Add Button -->
+            <Button x:Name="AddTagButton" 
+                    Grid.Column="1"
+                    Margin="5,0,0,0"
+                    Width="40"
+                    Height="40"
+                    Content="+"
+                    FontSize="18"
+                    FontWeight="Bold"
+                    IsEnabled="{Binding CanAddTag}"
+                    Click="AddTagButton_Click"
+                    Background="Transparent"
+                    BorderBrush="#BDC3C7"
+                    BorderThickness="1">
+                <Button.Resources>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E8E8E8"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#D1D1D1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#999"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <!-- Placeholder text -->
+            <TextBlock Text="{Binding Placeholder}"
+                       Visibility="{Binding HasTagText, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"
+                       IsHitTestVisible="False"
+                       Foreground="DarkGray"
+                       Margin="16,0,0,0"
+                       VerticalAlignment="Center"
+                       FontSize="13"/>
+        </Grid>
+
+        <!-- Tags display area -->
+        <ItemsControl x:Name="TagsPanel" 
+                      Grid.Row="1"
+                      ItemsSource="{Binding Tags}"
+                      Visibility="{Binding HasTags, Converter={StaticResource BooleanToVisibilityConverter}}"
+                      Margin="0,8,0,0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="#E3F2FD" 
+                            BorderBrush="#2196F3"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="8,4,4,4"
+                            Margin="0,0,6,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Tag text -->
+                            <TextBlock Grid.Column="0" 
+                                       Text="{Binding}"
+                                       FontSize="12"
+                                       Foreground="#1976D2"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,4,0"/>
+
+                            <!-- Remove button -->
+                            <Button Grid.Column="1"
+                                    Content="✕"
+                                    FontSize="10"
+                                    Width="16"
+                                    Height="16"
+                                    Padding="0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Foreground="#666"
+                                    Tag="{Binding}"
+                                    IsEnabled="{Binding DataContext.IsReadOnly, ElementName=TagsPanel, Converter={StaticResource InverseBooleanConverter}}"
+                                    Click="RemoveTagButton_Click"
+                                    ToolTip="Xóa tag">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#FFCDD2"/>
+                                                <Setter Property="Foreground" Value="#D32F2F"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Help text -->
+        <TextBlock Grid.Row="1"
+                   Text="Nhập tag và nhấn Enter hoặc nút + để thêm"
+                   Foreground="#999"
+                   FontStyle="Italic"
+                   FontSize="11"
+                   Margin="0,8,0,0"
+                   Visibility="{Binding HasTags, Converter={StaticResource InverseBooleanConverter}, 
+                               ConverterParameter=Collapsed}"/>
+    </Grid>
+</UserControl>

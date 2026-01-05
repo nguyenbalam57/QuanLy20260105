@@ -1,0 +1,376 @@
+﻿<UserControl x:Class="ManagementFile.AdminManagement.Views.UserManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:enums="clr-namespace:ManagementFile.Contracts.Enums;assembly=ManagementFile.Contracts"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1000">
+
+    <UserControl.Resources>
+        <!-- Import converters from App.xaml -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- Local styles for this view -->
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#333"/>
+        </Style>
+
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Background" Value="#007acc"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#007acc"/>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#007acc"/>
+            <Setter Property="BorderBrush" Value="#007acc"/>
+        </Style>
+
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Background" Value="#d32f2f"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#d32f2f"/>
+        </Style>
+
+        <Style x:Key="WarningButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Background" Value="#ff9800"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#ff9800"/>
+        </Style>
+
+        <Style x:Key="StatusBadgeStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#f8f9fa" Padding="20" BorderBrush="#dee2e6" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="👥 Quản lý người dùng" Style="{StaticResource HeaderTextStyle}"/>
+                    <TextBlock Text="Quản lý tài khoản người dùng trong hệ thống" 
+                               Foreground="#666" FontSize="14" Margin="0,4,0,0"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" 
+                        Content="🔄 Làm mới" 
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}"/>
+            </Grid>
+        </Border>
+
+        <!-- Search and Filters -->
+        <Border Grid.Row="1" Background="White" Padding="20" BorderBrush="#dee2e6" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Search Bar -->
+                <Grid Grid.Row="0" Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0" 
+                             Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="14" Padding="10"
+                             BorderBrush="#ddd" BorderThickness="1">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <VisualBrush AlignmentX="Left" AlignmentY="Center" Stretch="None">
+                                                    <VisualBrush.Visual>
+                                                        <TextBlock Text="🔍 Tìm kiếm theo tên, username, email..." 
+                                                                   Foreground="#999" Margin="10,0"/>
+                                                    </VisualBrush.Visual>
+                                                </VisualBrush>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+
+                    <Button Grid.Column="1" 
+                            Content="Tìm kiếm" 
+                            Command="{Binding SearchCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Margin="10,0,0,0"/>
+
+                    <Button Grid.Column="2" 
+                            Content="Xóa bộ lọc" 
+                            Command="{Binding ClearFiltersCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="10,0,0,0"/>
+                </Grid>
+
+                <!-- Filters -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="Vai trò:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox Grid.Column="1" 
+                              ItemsSource="{Binding Roles}"
+                              DisplayMemberPath="DisplayText"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding SelectedRole}" Padding="8,6"/>
+
+
+                    <TextBlock Grid.Column="2" Text="Phòng ban:" VerticalAlignment="Center" Margin="20,0,10,0"/>
+                    <ComboBox Grid.Column="3" 
+                              ItemsSource="{Binding Departments}"
+                              DisplayMemberPath="DisplayText"
+                              SelectedValuePath="Value"
+                              SelectedValue="{Binding SelectedDepartment}" 
+                              Padding="8,6"/>
+    
+                    <TextBlock Grid.Column="4" Text="Trạng thái:" VerticalAlignment="Center" Margin="20,0,10,0"/>
+                    <CheckBox Grid.Column="4" Content="Hiển thị người dùng hoạt động" 
+                              IsChecked="{Binding IsActiveFilter}" VerticalAlignment="Center" Margin="100,0,10,0"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Action Buttons -->
+        <Border Grid.Row="2" Background="White" Padding="20,15,20,0" BorderBrush="#dee2e6" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="➕ Thêm User" 
+                        Command="{Binding AddUserCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"/>
+                
+                <Button Content="✏️ Sửa" 
+                        Command="{Binding EditUserCommand}"
+                        CommandParameter="{Binding SelectedUser}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        IsEnabled="{Binding SelectedUser, Converter={StaticResource NullToBooleanConverter}}"/>
+                
+                <Button Content="🗑️ Xóa" 
+                        Command="{Binding DeleteUserCommand}"
+                        CommandParameter="{Binding SelectedUser}"
+                        Style="{StaticResource DangerButtonStyle}"
+                        IsEnabled="{Binding SelectedUser, Converter={StaticResource NullToBooleanConverter}}"/>
+                
+                <Button Content="🔓 Mở khóa" 
+                        Command="{Binding UnlockUserCommand}"
+                        CommandParameter="{Binding SelectedUser}"
+                        Style="{StaticResource WarningButtonStyle}"
+                        IsEnabled="{Binding SelectedUser, Converter={StaticResource NullToBooleanConverter}}"/>
+                
+                <Button Content="🔑 Đổi mật khẩu" 
+                        Command="{Binding ChangePasswordCommand}"
+                        CommandParameter="{Binding SelectedUser}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        IsEnabled="{Binding SelectedUser, Converter={StaticResource NullToBooleanConverter}}"/>
+                <Button Content="Reset mật khẩu"
+                        Command="{Binding ResetPasswordCommand}"
+                        CommandParameter="{Binding SelectedUser}"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        IsEnabled="{Binding SelectedUser, Converter={StaticResource NullToBooleanConverter}}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Users DataGrid -->
+        <DataGrid Grid.Row="3" 
+                  ItemsSource="{Binding Users}"
+                  SelectedItem="{Binding SelectedUser}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserReorderColumns="True"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="True"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  SelectionMode="Single"
+                  Background="White"
+                  BorderBrush="#dee2e6"
+                  BorderThickness="0"
+                  Margin="0,0,0,0">
+            
+            <DataGrid.Columns>
+                <!-- Avatar & Status -->
+                <DataGridTemplateColumn Header="📷" Width="60" CanUserSort="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Width="40" Height="40" CornerRadius="20" Background="#e3f2fd">
+                                <TextBlock Text="{Binding FullName}" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"
+                                           FontWeight="Bold"
+                                           Foreground="#1976d2"/>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Username -->
+                <DataGridTextColumn Header="👤 Username" 
+                                    Binding="{Binding Username}" 
+                                    Width="120"/>
+
+                <!-- Full Name -->
+                <DataGridTextColumn Header="📝 Họ và tên" 
+                                    Binding="{Binding FullName}" 
+                                    Width="200"/>
+
+                <!-- Email -->
+                <DataGridTextColumn Header="📧 Email" 
+                                    Binding="{Binding Email}" 
+                                    Width="250"/>
+
+                <!-- Role -->
+                <DataGridTemplateColumn Header="🎭 Vai trò" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource StatusBadgeStyle}" Background="#e8f5e8">
+                                <TextBlock Text="{Binding Role}" 
+                                           Foreground="#2e7d32" FontWeight="SemiBold"/>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Department -->
+                <DataGridTextColumn Header="🏢 Phòng ban" 
+                                    Binding="{Binding Department}" 
+                                    Width="100"/>
+
+                <!-- Status -->
+                <DataGridTemplateColumn Header="📊 Trạng thái" Width="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource StatusBadgeStyle}" Background="#e8f5e8">
+                                <TextBlock Text="✅ Hoạt động" 
+                                           Foreground="#2e7d32" FontWeight="SemiBold"/>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Last Login -->
+                <DataGridTextColumn Header="🕐 Đăng nhập cuối" 
+                                    Binding="{Binding LastLoginAt, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" 
+                                    Width="150"/>
+
+                <!-- Account Locked -->
+                <DataGridTemplateColumn Header="🔒 Khóa" Width="80">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="🔓" 
+                                       HorizontalAlignment="Center"
+                                       Foreground="#4caf50"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Height" Value="50"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#f5f5f5"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#e3f2fd"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="4" Background="#f8f9fa" Padding="20,10" BorderBrush="#dee2e6" BorderThickness="0,1,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Filter Info -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="{Binding FilterInfo}" Foreground="#666" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding StatusMessage}" Foreground="#333" Margin="20,0,0,0" VerticalAlignment="Center"/>
+                    
+                    <!-- Loading Indicator -->
+                    <StackPanel Orientation="Horizontal" 
+                                Margin="20,0,0,0"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <ProgressBar IsIndeterminate="True" Width="60" Height="4" VerticalAlignment="Center"/>
+                        <TextBlock Text="Đang tải..." Margin="10,0,0,0" VerticalAlignment="Center" Foreground="#666"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Pagination -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="⬅️ Trước" 
+                            Command="{Binding PreviousPageCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="0,0,5,0"/>
+                    
+                    <TextBlock Text="{Binding PageNumber}" 
+                               VerticalAlignment="Center" 
+                               Margin="10,0"/>
+                    
+                    <TextBlock Text="/" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,10,0"/>
+                    
+                    <TextBlock Text="{Binding TotalPages}" 
+                               VerticalAlignment="Center" 
+                               Margin="0,0,10,0"/>
+                    
+                    <Button Content="Sau ➡️" 
+                            Command="{Binding NextPageCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Margin="5,0,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

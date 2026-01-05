@@ -1,0 +1,618 @@
+﻿<UserControl x:Class="ManagementFile.App.Views.Reports.ReportsMainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:ManagementFile.App.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1200">
+
+    <UserControl.Resources>
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- Styles -->
+        <Style x:Key="ReportTabStyle" TargetType="TabItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border" Background="#F8F9FA" BorderBrush="#DEE2E6" BorderThickness="1,1,1,0" 
+                                CornerRadius="8,8,0,0" Padding="15,10" Margin="2,0">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="White"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#9B59B6"/>
+                                <Setter Property="Foreground" Value="#9B59B6"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#E9ECEF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ReportCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E1E5E9"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.1" Color="Gray"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ReportActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#9B59B6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#8E44AD"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#7D3C98"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#BDC3C7"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ReportFilterStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="MinWidth" Value="150"/>
+        </Style>
+
+        <Style x:Key="DatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="MinWidth" Value="120"/>
+        </Style>
+
+        <Style x:Key="MetricCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E1E5E9"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.1" Color="Gray"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#F5F6FA">
+        <!-- Loading Overlay -->
+        <Grid Background="#80FFFFFF" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" Panel.ZIndex="999">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="250" Height="4" Margin="0,0,0,20"/>
+                <TextBlock Text="{Binding LoadingMessage}" FontSize="16" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header Section -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#E1E5E9" BorderThickness="0,0,0,1" Padding="30,20">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="📊 Reports &amp; Analytics" FontSize="28" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,10"/>
+                        <TextBlock Text="Comprehensive reporting and data analytics" FontSize="16" Foreground="#7F8C8D" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Background="#9B59B6" Padding="8,4" CornerRadius="4" Margin="0,0,10,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📈" FontSize="14" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <TextBlock Text="{Binding GeneratedReportsCount}" FontWeight="SemiBold" Foreground="White"/>
+                                    <TextBlock Text="reports generated" Foreground="White" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#E74C3C" Padding="8,4" CornerRadius="4" Margin="0,0,10,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="⏱️" FontSize="14" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <TextBlock Text="{Binding LastUpdatedText}" FontWeight="SemiBold" Foreground="White"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Background="#27AE60" Padding="8,4" CornerRadius="4" Margin="0,0,10,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📋" FontSize="14" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <TextBlock Text="{Binding AvailableReportTypes}" FontWeight="SemiBold" Foreground="White"/>
+                                    <TextBlock Text="types available" Foreground="White" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="📈 Generate Report" Style="{StaticResource ReportActionButtonStyle}" 
+                                Command="{Binding GenerateReportCommand}" Background="#27AE60"/>
+                        <Button Content="📤 Export Data" Style="{StaticResource ReportActionButtonStyle}" 
+                                Command="{Binding ExportDataCommand}" Background="#3498DB"/>
+                        <Button Content="🔄 Refresh" Style="{StaticResource ReportActionButtonStyle}" 
+                                Command="{Binding RefreshReportsCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Filters Section -->
+            <Border Grid.Row="1" Background="#F8F9FA" BorderBrush="#DEE2E6" BorderThickness="0,0,0,1" Padding="20,15">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="Report Period:" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="SemiBold"/>
+                        <DatePicker SelectedDate="{Binding StartDate}" Style="{StaticResource DatePickerStyle}" 
+                                    ToolTip="Start Date"/>
+                        <TextBlock Text="to" VerticalAlignment="Center" Margin="5,0"/>
+                        <DatePicker SelectedDate="{Binding EndDate}" Style="{StaticResource DatePickerStyle}" 
+                                    ToolTip="End Date"/>
+
+                        <TextBlock Text="Filter:" VerticalAlignment="Center" Margin="20,0,10,0" FontWeight="SemiBold"/>
+                        <ComboBox SelectedItem="{Binding ProjectFilter}" Style="{StaticResource ReportFilterStyle}" 
+                                  ItemsSource="{Binding AvailableProjects}" DisplayMemberPath="ProjectName" 
+                                  ToolTip="Project Filter"/>
+                        <ComboBox SelectedItem="{Binding DepartmentFilter}" Style="{StaticResource ReportFilterStyle}" 
+                                  ItemsSource="{Binding AvailableDepartments}" 
+                                  ToolTip="Department Filter"/>
+                        <ComboBox SelectedItem="{Binding UserFilter}" Style="{StaticResource ReportFilterStyle}" 
+                                  ItemsSource="{Binding AvailableUsers}" DisplayMemberPath="ProjectName"
+                                  ToolTip="User Filter"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="1" Content="🔍 Apply Filters" Style="{StaticResource ReportActionButtonStyle}" 
+                            Command="{Binding ApplyFiltersCommand}" Background="#E67E22"/>
+                </Grid>
+            </Border>
+
+            <!-- Main Content - Reports Tabs -->
+            <TabControl Grid.Row="2" SelectedIndex="{Binding SelectedTabIndex}" Background="Transparent" BorderThickness="0">
+
+                <!-- Project Reports Tab -->
+                <TabItem Header="📊 Project Reports" Style="{StaticResource ReportTabStyle}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="20">
+                            
+                            <!-- Project Progress Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="📈" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Project Progress Report" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Comprehensive analysis of project completion status, milestones, and team performance" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap" Margin="0,0,0,15"/>
+                                        
+                                        <!-- Project Progress Metrics -->
+                                        <Grid Visibility="{Binding HasProjectProgressData, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0" Style="{StaticResource MetricCardStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="Overall Progress" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding ProjectProgressReport.ProgressText}" FontSize="24" FontWeight="Bold" 
+                                                               Foreground="{Binding ProjectProgressReport.ProgressColor}" HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Grid.Column="1" Style="{StaticResource MetricCardStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="Tasks Completion" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding ProjectProgressReport.TasksCompletionText}" FontSize="16" FontWeight="Bold" 
+                                                               Foreground="#3498DB" HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Grid.Column="2" Style="{StaticResource MetricCardStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="Budget Usage" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding ProjectProgressReport.BudgetUsageText}" FontSize="14" FontWeight="Bold" 
+                                                               Foreground="#E67E22" HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateProjectProgressReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportProjectProgressReportCommand}" Background="#3498DB"/>
+                                        <Button Content="👁️ View" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ViewProjectProgressReportCommand}"
+                                                Visibility="{Binding HasProjectProgressData, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Team Productivity Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="👥" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Team Productivity Analysis" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Analysis of team performance, individual contributions, and department productivity metrics" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap" Margin="0,0,0,15"/>
+                                        
+                                        <!-- Team Productivity Metrics -->
+                                        <Grid Visibility="{Binding HasTeamProductivityData, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Grid.Column="0" Style="{StaticResource MetricCardStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="Active Members" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding TeamProductivityReport.TeamSummary}" FontSize="16" FontWeight="Bold" 
+                                                               Foreground="#27AE60" HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Grid.Column="1" Style="{StaticResource MetricCardStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="Tasks Completed" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding TeamProductivityReport.TotalTasksCompleted}" FontSize="24" FontWeight="Bold" 
+                                                               Foreground="#3498DB" HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Border Grid.Column="2" Style="{StaticResource MetricCardStyle}">
+                                                <StackPanel HorizontalAlignment="Center">
+                                                    <TextBlock Text="Avg Productivity" FontSize="12" Foreground="#7F8C8D" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding TeamProductivityReport.ProductivitySummary}" FontSize="16" FontWeight="Bold" 
+                                                               Foreground="#9B59B6" HorizontalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateTeamProductivityReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportTeamProductivityReportCommand}" Background="#3498DB"/>
+                                        <Button Content="👁️ View" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ViewTeamProductivityReportCommand}"
+                                                Visibility="{Binding HasTeamProductivityData, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Project Timeline Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="📅" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Project Timeline Analysis" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Timeline analysis including milestones, delays, critical path, and schedule variance" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateProjectTimelineReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportProjectTimelineReportCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- User Reports Tab -->
+                <TabItem Header="👤 User Reports" Style="{StaticResource ReportTabStyle}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="20">
+                            
+                            <!-- User Productivity Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="🎯" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Individual Productivity Report" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Personal productivity analysis including task completion, time tracking, and skill utilization" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateUserProductivityReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportUserProductivityReportCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- User Workload Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="⚖️" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Team Workload Analysis" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Analysis of workload distribution, utilization rates, and capacity planning" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateUserWorkloadReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportUserWorkloadReportCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- File & Storage Reports Tab -->
+                <TabItem Header="📁 Storage Reports" Style="{StaticResource ReportTabStyle}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="20">
+                            
+                            <!-- File Usage Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="📊" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="File Usage Statistics" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Analysis of file access patterns, type distribution, and usage trends" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateFileUsageReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportFileUsageReportCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Storage Utilization Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="💾" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Storage Utilization Analysis" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Storage capacity analysis, project space usage, and growth predictions" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateStorageUtilizationReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportStorageUtilizationReportCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- Time Tracking Reports Tab -->
+                <TabItem Header="⏱️ Time Reports" Style="{StaticResource ReportTabStyle}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="20">
+                            
+                            <!-- Time Tracking Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="⏰" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Time Tracking Summary" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Comprehensive time tracking analysis with billable vs non-billable breakdown" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateTimeTrackingReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportTimeTrackingReportCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Billable Hours Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="💰" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Billable Hours Analysis" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Revenue analysis with client breakdown, hourly rates, and billing efficiency" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateBillableHoursReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportBillableHoursReportCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!-- System Analytics Tab -->
+                <TabItem Header="🔧 System Analytics" Style="{StaticResource ReportTabStyle}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="20">
+                            
+                            <!-- System Usage Analytics -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="📈" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="System Usage Analytics" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="User activity patterns, feature usage statistics, and system adoption metrics" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GenerateSystemUsageAnalyticsCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportSystemUsageAnalyticsCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Performance Metrics Report -->
+                            <Border Style="{StaticResource ReportCardStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                            <TextBlock Text="⚡" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock Text="Performance Metrics Report" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="System performance analysis including response times, uptime, error rates, and resource utilization" 
+                                                   FontSize="14" Foreground="#7F8C8D" TextWrapping="Wrap"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Button Content="📊 Generate" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding GeneratePerformanceMetricsReportCommand}" Background="#27AE60"/>
+                                        <Button Content="📤 Export" Style="{StaticResource ReportActionButtonStyle}" 
+                                                Command="{Binding ExportPerformanceMetricsReportCommand}" Background="#3498DB"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,224 @@
+﻿<Window x:Class="ManagementFile.App.Views.Dialogs.Comments.CommentLine"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ManagementFile.App.Views.Dialogs.Comments"
+        mc:Ignorable="d"
+        Title="Nhập Thông Tin" 
+        Height="Auto" 
+        Width="600"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        Background="#F8F9FA"
+        ShowInTaskbar="False"
+        MinHeight="200"
+        MaxHeight="700">
+
+    <Window.Resources>
+        <!-- Modern TextBox Style -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Padding="{TemplateBinding Padding}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#3498DB"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#F8F9FA"/>
+                                <Setter Property="Foreground" Value="#95A5A6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Multiline TextBox Style -->
+        <Style x:Key="MultilineTextBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBox}">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="MinHeight" Value="80"/>
+            <Setter Property="MaxHeight" Value="200"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+        </Style>
+
+        <!-- Label Style -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <!-- Required Indicator Style -->
+        <Style x:Key="RequiredIndicator" TargetType="TextBlock">
+            <Setter Property="Text" Value="*"/>
+            <Setter Property="Foreground" Value="#E74C3C"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Modern Button Style -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.9"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Opacity" Value="0.8"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Primary Button -->
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#3498DB"/>
+        </Style>
+
+        <!-- Secondary Button -->
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="#95A5A6"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock x:Name="TitleTextBlock"
+                       Text="Nhập Thông Tin"
+                       FontFamily="Segoe UI"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#2C3E50"/>
+            <TextBlock x:Name="MessageTextBlock"
+                       Text="Vui lòng điền thông tin vào các trường bên dưới"
+                       FontFamily="Segoe UI"
+                       FontSize="13"
+                       Foreground="#7F8C8D"
+                       TextWrapping="Wrap"
+                       Margin="0,6,0,0"
+                       Visibility="Collapsed"/>
+        </StackPanel>
+
+        <!-- Dynamic Fields Container -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto"
+                      MaxHeight="450">
+            <StackPanel x:Name="FieldsContainer" 
+                        Margin="0,0,0,20">
+                <!-- Dynamic fields will be added here -->
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Validation Message -->
+        <Border Grid.Row="2"
+                x:Name="ValidationBorder"
+                Background="#FFEBEE"
+                BorderBrush="#EF5350"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="12"
+                Margin="0,0,0,16"
+                Visibility="Collapsed">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⚠"
+                           FontSize="16"
+                           Foreground="#E74C3C"
+                           Margin="0,0,8,0"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="ValidationMessage"
+                           FontFamily="Segoe UI"
+                           FontSize="12"
+                           Foreground="#C62828"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Action Buttons -->
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Character count indicator (optional) -->
+            <TextBlock x:Name="CharCountText"
+                       Grid.Column="0"
+                       Text=""
+                       FontFamily="Segoe UI"
+                       FontSize="11"
+                       Foreground="#95A5A6"
+                       VerticalAlignment="Center"
+                       Visibility="Collapsed"/>
+
+            <!-- Buttons -->
+            <Button Grid.Column="1"
+                    Content="Hủy"
+                    Style="{StaticResource SecondaryButton}"
+                    Click="CancelButton_Click"
+                    Margin="0,0,10,0"/>
+
+            <Button Grid.Column="2"
+                    x:Name="ConfirmButton"
+                    Content="Xác nhận"
+                    Style="{StaticResource PrimaryButton}"
+                    Click="ConfirmButton_Click"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,315 @@
+﻿<UserControl x:Class="ManagementFile.App.Controls.MultiUserSelectorControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ManagementFile.App.Controls"
+             xmlns:conv="clr-namespace:ManagementFile.App.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="80" d:DesignWidth="400">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <conv:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+
+        <!-- Styles remain the same -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#3498DB"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+                <Trigger Property="IsReadOnly" Value="True">
+                    <Setter Property="Background" Value="#F8F9FA"/>
+                    <Setter Property="Foreground" Value="#7F8C8D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E8E8E8"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#D1D1D1"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Input area -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- TextBox for search - REMOVE BINDING -->
+            <TextBox x:Name="SearchTextBox" 
+                     Grid.Column="0"
+                     Style="{StaticResource ModernTextBox}"
+                     Height="40"
+                     KeyUp="SearchTextBox_KeyUp"
+                     GotFocus="SearchTextBox_GotFocus"
+                     LostFocus="SearchTextBox_LostFocus"/>
+
+            <!-- Button tìm kiếm -->
+            <Button x:Name="SearchButton" 
+                    Grid.Column="1"
+                    Margin="5,0,0,0"
+                    Width="40"
+                    Height="40"
+                    Content="🔍"
+                    FontSize="16"
+                    Click="SearchButton_Click"
+                    Style="{StaticResource ModernButton}"/>
+
+            <!-- Dropdown Popup -->
+            <Popup x:Name="SearchResultsPopup" 
+                   PlacementTarget="{Binding ElementName=SearchTextBox}" 
+                   StaysOpen="False"
+                   Width="{Binding ActualWidth, ElementName=SearchTextBox}"
+                   MaxHeight="300"
+                   Placement="Bottom"
+                   PopupAnimation="Slide">
+
+                <Border Background="White" 
+                        BorderBrush="#BDC3C7" 
+                        BorderThickness="1"
+                        CornerRadius="0,0,4,4"
+                        Padding="0">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#000000" Opacity="0.1" ShadowDepth="2" BlurRadius="8"/>
+                    </Border.Effect>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Search status - NO BINDING -->
+                        <Border Grid.Row="0" 
+                                Background="#F5F5F5"
+                                BorderBrush="#E0E0E0"
+                                BorderThickness="0,0,0,1">
+                            <TextBlock x:Name="SearchStatusTextBlock"
+                                       Text="Nhập để tìm kiếm..." 
+                                       Padding="10,5"
+                                       FontSize="12"
+                                       Foreground="#666"
+                                       FontFamily="Segoe UI"/>
+                        </Border>
+
+                        <!-- Results list - NO BINDING -->
+                        <ListView x:Name="SearchResultsList"
+                                  Grid.Row="1"
+                                  SelectionMode="Single"
+                                  MouseDoubleClick="SearchResultsList_MouseDoubleClick"
+                                  KeyDown="SearchResultsList_KeyDown"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.CanContentScroll="True"
+                                  MaxHeight="250"
+                                  BorderThickness="0"
+                                  VirtualizingStackPanel.IsVirtualizing="True"
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling">
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="10,8" />
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#E8F4FC" />
+                                            <Setter Property="BorderBrush" Value="#3498DB" />
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#F5F9FC" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- User Avatar -->
+                                        <Border Grid.Column="0" 
+                                                Width="24" 
+                                                Height="24" 
+                                                Background="#3498DB" 
+                                                CornerRadius="12"
+                                                Margin="0,0,10,0"
+                                                VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Initials}" 
+                                                       Foreground="White"
+                                                       FontWeight="Bold"
+                                                       FontSize="12"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+
+                                        <!-- User Info -->
+                                        <StackPanel Grid.Column="1" Orientation="Vertical">
+                                            <TextBlock Text="{Binding FullName}" 
+                                                       FontWeight="SemiBold"
+                                                       FontSize="13"
+                                                       FontFamily="Segoe UI"/>
+                                            <TextBlock Text="{Binding Email}" 
+                                                       FontSize="11" 
+                                                       Foreground="#777"
+                                                       FontFamily="Segoe UI"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <!-- Footer - NO BINDING -->
+                        <Border Grid.Row="2" 
+                                Background="#F5F5F5"
+                                BorderBrush="#E0E0E0"
+                                BorderThickness="0,1,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Status text -->
+                                <TextBlock Grid.Column="0" 
+                                           x:Name="FooterTextBlock"
+                                           Text="Nhấn F5 để làm mới danh sách" 
+                                           Padding="10,5"
+                                           FontSize="11"
+                                           FontFamily="Segoe UI"
+                                           Foreground="#666"/>
+
+                                <!-- Refresh button -->
+                                <Button Grid.Column="1"
+                                        Content="🔄"
+                                        Width="26"
+                                        Height="26"
+                                        Margin="5"
+                                        Padding="0"
+                                        FontSize="12"
+                                        ToolTip="Refresh (F5)"
+                                        Click="RefreshButton_Click"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Cursor="Hand"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Popup>
+        </Grid>
+
+        <!-- Selected users chips area - NO BINDING -->
+        <ItemsControl x:Name="SelectedUsersPanel" 
+                      Grid.Row="1"
+                      Margin="0,8,0,0">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Background="#E8F4FC" 
+                            BorderBrush="#BDE5F8"
+                            BorderThickness="1"
+                            CornerRadius="15"
+                            Padding="8,4,4,4"
+                            Margin="0,0,6,6">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- User Avatar -->
+                            <Border Grid.Column="0" 
+                                    Width="20" 
+                                    Height="20" 
+                                    Background="#3498DB" 
+                                    CornerRadius="10"
+                                    Margin="0,0,6,0">
+                                <TextBlock Text="{Binding Initials}" 
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- User DisplayName -->
+                            <TextBlock Grid.Column="1" 
+                                       Text="{Binding FullName}"
+                                       FontSize="12"
+                                       FontFamily="Segoe UI"
+                                       VerticalAlignment="Center"/>
+
+                            <!-- Remove button -->
+                            <Button Grid.Column="2"
+                                    Content="✕"
+                                    FontSize="10"
+                                    Width="18"
+                                    Height="18"
+                                    Margin="4,0,0,0"
+                                    Padding="0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    Tag="{Binding Id}"
+                                    Click="RemoveUserButton_Click">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#FF4444"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</UserControl>

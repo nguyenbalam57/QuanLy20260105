@@ -1,0 +1,373 @@
+﻿<Window x:Class="ManagementFile.AdminManagement.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ManagementFile.AdminManagement"
+        xmlns:views="clr-namespace:ManagementFile.AdminManagement.Views"
+        mc:Ignorable="d"
+        Title="Admin Management - Quản lý hệ thống" 
+        Height="800" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#f5f5f5">
+
+    <Window.Resources>
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        
+        <!-- Styles -->
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="SubHeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#e0e0e0"/>
+        </Style>
+
+        <Style x:Key="TabItemStyle" TargetType="TabItem">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Margin" Value="0,0,2,0"/>
+        </Style>
+
+        <Style x:Key="StatusBarTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="UserInfoTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="LogoutButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#e74c3c"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2c3e50">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo and Title -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🔧" FontSize="24" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <StackPanel>
+                        <TextBlock Text="Admin Management" Style="{StaticResource HeaderTextStyle}"/>
+                        <TextBlock Text="Hệ thống quản lý người dùng và tài nguyên" Style="{StaticResource SubHeaderTextStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Current Time -->
+                <TextBlock Grid.Column="1" 
+                           Text="{Binding CurrentTime}" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Style="{StaticResource UserInfoTextStyle}"/>
+
+                <!-- User Info and Logout -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel Margin="0,0,15,0">
+                        <TextBlock Text="{Binding CurrentUser.FullName}" 
+                                   Style="{StaticResource UserInfoTextStyle}" 
+                                   HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding CurrentUser.Role}" 
+                                   Style="{StaticResource SubHeaderTextStyle}" 
+                                   HorizontalAlignment="Right"/>
+                    </StackPanel>
+                    <Button Content="🚪 Đăng xuất" 
+                            Command="{Binding LogoutCommand}"
+                            Style="{StaticResource LogoutButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <TabControl x:Name="MainTabControl"
+                    Grid.Row="1" 
+                    Background="White" 
+                    BorderThickness="0"
+                    TabStripPlacement="Top">
+            
+            <!-- Dashboard Tab -->
+            <TabItem Header="📊 Dashboard" Style="{StaticResource TabItemStyle}">
+                <Grid Background="#f8f9fa">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Quick Stats -->
+                    <Border Grid.Row="0" Background="White" Margin="20" Padding="20" CornerRadius="8" >
+                        <Border.Effect>
+                            <DropShadowEffect Color="Gray" ShadowDepth="2" BlurRadius="5" Opacity="0.3"/>
+                        </Border.Effect>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Total Users -->
+                            <Border Grid.Column="0" Background="#e3f2fd" Padding="15" CornerRadius="8" Margin="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="👥" FontSize="24" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalUsers}" 
+                                               FontSize="32" 
+                                               FontWeight="Bold" 
+                                               HorizontalAlignment="Center" 
+                                               Foreground="#1976d2"/>
+                                    <TextBlock Text="Tổng số người dùng" 
+                                               HorizontalAlignment="Center" 
+                                               Foreground="#666"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Active Users -->
+                            <Border Grid.Column="1" Background="#e8f5e8" Padding="15" CornerRadius="8" Margin="5,0">
+                                <StackPanel>
+                                    <TextBlock Text="✅" FontSize="24" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding ActiveUsers}" 
+                                               FontSize="32" 
+                                               FontWeight="Bold" 
+                                               HorizontalAlignment="Center" 
+                                               Foreground="#4caf50"/>
+                                    <TextBlock Text="Đang hoạt động" 
+                                               HorizontalAlignment="Center" 
+                                               Foreground="#666"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- System Health -->
+                            <Border Grid.Column="2" Background="#fff3e0" Padding="15" CornerRadius="8" Margin="5,0">
+                                <StackPanel>
+                                    <TextBlock Text="💚" FontSize="24" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Tốt" 
+                                               FontSize="20" 
+                                               FontWeight="Bold" 
+                                               HorizontalAlignment="Center" 
+                                               Foreground="#ff9800"/>
+                                    <TextBlock Text="Tình trạng hệ thống" 
+                                               HorizontalAlignment="Center" 
+                                               Foreground="#666"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Storage -->
+                            <Border Grid.Column="3" Background="#f3e5f5" Padding="15" CornerRadius="8" Margin="10,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="💾" FontSize="24" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding StorageUsedGB, StringFormat='{}{0:F1} GB'}" 
+                                               FontSize="20" 
+                                               FontWeight="Bold" 
+                                               HorizontalAlignment="Center" 
+                                               Foreground="#9c27b0"/>
+                                    <TextBlock Text="Dung lượng sử dụng" 
+                                               HorizontalAlignment="Center" 
+                                               Foreground="#666"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!-- Quick Actions -->
+                    <Border Grid.Row="1" Background="White" Margin="20,0,20,20" Padding="20" CornerRadius="8" >
+                        <Border.Effect>
+                            <DropShadowEffect Color="Gray" ShadowDepth="2" BlurRadius="5" Opacity="0.3"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="⚡ Thao tác nhanh" 
+                                       FontSize="16" 
+                                       FontWeight="Bold" 
+                                       Margin="0,0,0,15"/>
+                            
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="👥 Quản lý người dùng" 
+                                        Command="{Binding SwitchToUsersTabCommand}"
+                                        Background="#007acc" 
+                                        Foreground="White" 
+                                        Padding="15,8" 
+                                        Margin="0,0,10,0" 
+                                        BorderThickness="0" 
+                                        Cursor="Hand"/>
+                                
+                                <Button Content="🧹 Dọn dẹp hệ thống" 
+                                        Command="{Binding CleanupSystemCommand}"
+                                        Background="#4caf50" 
+                                        Foreground="White" 
+                                        Padding="15,8" 
+                                        Margin="0,0,10,0" 
+                                        BorderThickness="0" 
+                                        Cursor="Hand"/>
+                                
+                                <Button Content="📊 Báo cáo hệ thống" 
+                                        Background="#ff9800" 
+                                        Foreground="White" 
+                                        Padding="15,8" 
+                                        Margin="0,0,10,0" 
+                                        BorderThickness="0" 
+                                        Cursor="Hand"/>
+                                
+                                <Button Content="⚙️ Cài đặt" 
+                                        Background="#9c27b0" 
+                                        Foreground="White" 
+                                        Padding="15,8" 
+                                        BorderThickness="0" 
+                                        Cursor="Hand"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Recent Activity -->
+                    <Border Grid.Row="2" Background="White" Margin="20,0,20,20" Padding="20" CornerRadius="8" >
+                        <Border.Effect>
+                            <DropShadowEffect Color="Gray" ShadowDepth="2" BlurRadius="5" Opacity="0.3"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="📝 Hoạt động gần đây" 
+                                       FontSize="16" 
+                                       FontWeight="Bold" 
+                                       Margin="0,0,0,15"/>
+                            
+                            <TextBlock Text="• Người dùng 'admin' đã đăng nhập lúc 10:30:15" 
+                                       Foreground="#666" 
+                                       Margin="0,5"/>
+                            <TextBlock Text="• Hệ thống đã được khởi động lại lúc 09:00:00" 
+                                       Foreground="#666" 
+                                       Margin="0,5"/>
+                            <TextBlock Text="• Dọn dẹp file tạm thời hoàn thành lúc 08:30:00" 
+                                       Foreground="#666" 
+                                       Margin="0,5"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- User Management Tab -->
+            <TabItem Header="👥 Quản lý người dùng" Style="{StaticResource TabItemStyle}">
+                <!-- Content will be injected via DI -->
+            </TabItem>
+
+            <!-- System Settings Tab -->
+            <TabItem Header="⚙️ Cài đặt hệ thống" Style="{StaticResource TabItemStyle}">
+                <Grid Background="#f8f9fa" Margin="20">
+                    <StackPanel>
+                        <TextBlock Text="⚙️ Cài đặt hệ thống" 
+                                   FontSize="18" 
+                                   FontWeight="Bold" 
+                                   Margin="0,0,0,20"/>
+                        
+                        <Border Background="White" Padding="20" CornerRadius="8" >
+                            <Border.Effect>
+                                <DropShadowEffect Color="Gray" ShadowDepth="2" BlurRadius="5" Opacity="0.3"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="🗂️ Quản lý thư mục" 
+                                           FontSize="16" 
+                                           FontWeight="Bold" 
+                                           Margin="0,0,0,15"/>
+                                
+                                <Button Content="📁 Cấu hình thư mục lưu trữ" 
+                                        HorizontalAlignment="Left" 
+                                        Background="#007acc" 
+                                        Foreground="White" 
+                                        Padding="15,8" 
+                                        BorderThickness="0" 
+                                        Cursor="Hand" 
+                                        Margin="0,0,0,10"/>
+                                
+                                <Button Content="🧹 Dọn dẹp file tạm thời" 
+                                        Command="{Binding CleanupTempFilesCommand}"
+                                        HorizontalAlignment="Left" 
+                                        Background="#4caf50" 
+                                        Foreground="White" 
+                                        Padding="15,8" 
+                                        BorderThickness="0" 
+                                        Cursor="Hand" 
+                                        Margin="0,0,0,10"/>
+                                
+                                <Button Content="💾 Sao lưu cơ sở dữ liệu" 
+                                        Command="{Binding BackupDatabaseCommand}"
+                                        HorizontalAlignment="Left" 
+                                        Background="#ff9800" 
+                                        Foreground="White" 
+                                        Padding="15,8" 
+                                        BorderThickness="0" 
+                                        Cursor="Hand"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Audit Logs Tab -->
+            <TabItem Header="📋 Nhật ký hệ thống" Style="{StaticResource TabItemStyle}">
+                <Grid Background="#f8f9fa" Margin="20">
+                    <StackPanel>
+                        <TextBlock Text="📋 Nhật ký kiểm toán" 
+                                   FontSize="18" 
+                                   FontWeight="Bold" 
+                                   Margin="0,0,0,20"/>
+                        
+                        <Border Background="White" Padding="20" CornerRadius="8" >
+                            <Border.Effect>
+                                <DropShadowEffect Color="Gray" ShadowDepth="2" BlurRadius="5" Opacity="0.3"/>
+                            </Border.Effect>
+                            <TextBlock Text="Chức năng xem nhật ký hệ thống sẽ được phát triển trong phiên bản tiếp theo." 
+                                       FontStyle="Italic" 
+                                       Foreground="#666"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="#ecf0f1" BorderBrush="#bdc3c7" BorderThickness="0,1,0,0">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Text="🟢 Hệ thống hoạt động bình thường" Style="{StaticResource StatusBarTextStyle}"/>
+                    <TextBlock Text=" | " Style="{StaticResource StatusBarTextStyle}"/>
+                    <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource StatusBarTextStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="Phiên bản: 1.0.0" Style="{StaticResource StatusBarTextStyle}" Margin="0,0,15,0"/>
+                    <TextBlock Text="{Binding ServerStatus}" Style="{StaticResource StatusBarTextStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

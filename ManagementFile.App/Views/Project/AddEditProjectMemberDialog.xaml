@@ -1,0 +1,412 @@
+﻿<Window x:Class="ManagementFile.App.Views.Project.AddEditProjectMemberDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ManagementFile.App.Views.Project"
+        xmlns:converters="clr-namespace:ManagementFile.App.Converters"
+        xmlns:controls="clr-namespace:ManagementFile.App.Controls"
+        mc:Ignorable="d"
+        Title="{Binding DialogTitle}" 
+        Height="700" Width="900"
+        MinHeight="650" MinWidth="800"
+        ResizeMode="CanResize"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False"
+        Background="#F8F9FA">
+
+    <Window.Resources>
+        <!-- Converters -->
+        <converters:BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:StringToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        
+        <!-- Styles -->
+        <Style x:Key="SectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="#34495E"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#3498DB"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#3498DB"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- Modern ComboBox Style -->
+        <Style x:Key="ModernComboBox" TargetType="ComboBox" BasedOn="{StaticResource ComboBoxStyle}">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#3498DB"/>
+                </Trigger>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#3498DB"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#F5F5F5"/>
+                    <Setter Property="Foreground" Value="#A0A0A0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Background" Value="#3498DB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2980B9"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#BDC3C7"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonStyle}">
+            <Setter Property="Background" Value="#95A5A6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#7F8C8D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        
+        <Style x:Key="ClearButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#ECF0F1"/>
+            <Setter Property="Foreground" Value="#7F8C8D"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E0E0E0"/>
+                    <Setter Property="BorderBrush" Value="#95A5A6"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SectionBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ValidationErrorStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#E74C3C"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="UserInfoStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#7F8C8D"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+
+        <Style x:Key="SearchIndicatorStyle" TargetType="Border">
+            <Setter Property="Background" Value="#E3F2FD"/>
+            <Setter Property="BorderBrush" Value="#2196F3"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+            <TextBlock Text="👥" FontSize="24" VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <StackPanel>
+                <TextBlock Text="{Binding DialogTitle}" 
+                          FontSize="20" FontWeight="Bold" 
+                          Foreground="#2C3E50"/>
+                <TextBlock Text="Quản lý thành viên dự án"
+                          FontSize="13" Foreground="#7F8C8D"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                
+                <!-- User Selection Section -->
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="👤 Thông tin người dùng" Style="{StaticResource SectionHeaderStyle}"/>
+
+                        <!-- Search User thêm vào thành viên trong dự án -->
+                        <controls:UserSelectorControl x:Name="UserMemberSelector"
+                                                        SelectedUser="{Binding SelectedUser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        SearchScope="{Binding MemberSearchScope}"
+                                                        Placeholder="{Binding MemberSearchPlaceholder}"
+                                                        IsReadOnly="{Binding IsReadOnly}"/> 
+
+                    </StackPanel>
+                </Border>
+
+                <!-- Role & Allocation Section -->
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="🎯 Vai trò và phân công" Style="{StaticResource SectionHeaderStyle}"/>
+                        
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Project Role -->
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                      Text="Vai trò dự án *"
+                                      Style="{StaticResource LabelStyle}"
+                                      ToolTip="Vai trò của thành viên trong dự án này"/>
+                            
+                            <ComboBox x:Name="RoleComboBox"
+                                     Grid.Row="0" Grid.Column="1"
+                                     Style="{StaticResource ComboBoxStyle}"
+                                     SelectedValue ="{Binding ProjectRole, Mode=TwoWay}"
+                                     ItemsSource="{Binding AvailableRoles}"
+                                     DisplayMemberPath ="DisplayText"
+                                     SelectedValuePath ="Value"
+                                     ToolTip="Chọn vai trò cho thành viên trong dự án"/>
+
+                            <!-- Allocation Percentage -->
+                            <TextBlock Grid.Row="0" Grid.Column="3"
+                                      Text="Phân bổ (%)"
+                                      Style="{StaticResource LabelStyle}"
+                                      ToolTip="Phần trăm thời gian dành cho dự án (0-100)"/>
+                            
+                            <StackPanel Grid.Row="0" Grid.Column="4" Orientation="Horizontal">
+                                <TextBox Style="{StaticResource TextBoxStyle}"
+                                        Text="{Binding AllocationPercentage, Mode=TwoWay, StringFormat=F1}"
+                                        Width="80"
+                                        ToolTip="Nhập phần trăm thời gian (0-100)"/>
+                                <TextBlock Text="%" VerticalAlignment="Center" Margin="4,0,0,0" 
+                                          Foreground="#7F8C8D"/>
+                            </StackPanel>
+
+                            <!-- Hourly Rate -->
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                      Text="Mức lương/giờ"
+                                      Style="{StaticResource LabelStyle}"
+                                      Margin="0,8,8,0"
+                                      ToolTip="Mức lương theo giờ cho dự án này (tùy chọn)"/>
+
+                            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBox Style="{StaticResource TextBoxStyle}"
+                                        Text="{Binding HourlyRate, Mode=TwoWay, StringFormat=F2}"
+                                        Width="120"
+                                        ToolTip="Nhập mức lương theo giờ"/>
+                                <TextBlock Text="USD" VerticalAlignment="Center" Margin="4,0,0,0" 
+                                          Foreground="#7F8C8D"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Dates Section (Edit Mode Only) -->
+                <Border Style="{StaticResource SectionBorderStyle}"
+                       Visibility="{Binding IsEditMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="📅 Thời gian tham gia" Style="{StaticResource SectionHeaderStyle}"/>
+                        
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="20"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Joined Date -->
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                      Text="Ngày tham gia"
+                                      Style="{StaticResource LabelStyle}"
+                                      ToolTip="Ngày bắt đầu tham gia dự án"/>
+                            
+                            <DatePicker Grid.Row="0" Grid.Column="1"
+                                       SelectedDate="{Binding JoinedAt, Mode=TwoWay}"
+                                       Padding="8"
+                                       BorderBrush="#BDC3C7"
+                                       ToolTip="Chọn ngày tham gia dự án"/>
+
+                            <!-- Left Date -->
+                            <TextBlock Grid.Row="0" Grid.Column="3"
+                                      Text="Ngày rời dự án"
+                                      Style="{StaticResource LabelStyle}"
+                                      ToolTip="Ngày rời dự án (nếu có)"/>
+                            
+                            <DatePicker Grid.Row="0" Grid.Column="4"
+                                       SelectedDate="{Binding LeftAt, Mode=TwoWay}"
+                                       Padding="8"
+                                       BorderBrush="#BDC3C7"
+                                       ToolTip="Chọn ngày rời dự án (để trống nếu chưa rời)"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Notes Section -->
+                <Border Style="{StaticResource SectionBorderStyle}">
+                    <StackPanel>
+                        <TextBlock Text="📝 Ghi chú" Style="{StaticResource SectionHeaderStyle}"/>
+                        
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                      Text="Ghi chú"
+                                      Style="{StaticResource LabelStyle}"
+                                      VerticalAlignment="Top"
+                                      Margin="0,8,8,0"
+                                      ToolTip="Ghi chú về thành viên trong dự án"/>
+                            
+                            <TextBox Grid.Row="0" Grid.Column="1"
+                                    Text="{Binding Notes, Mode=TwoWay}"
+                                    Style="{StaticResource TextBoxStyle}"
+                                    AcceptsReturn="True"
+                                    TextWrapping="Wrap"
+                                    Height="80"
+                                    VerticalScrollBarVisibility="Auto"
+                                    ToolTip="Nhập ghi chú về vai trò, trách nhiệm hoặc thông tin đặc biệt"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Validation Messages -->
+        <Border Grid.Row="2" 
+               Background="#FFEBEE" 
+               BorderBrush="#E57373" 
+               BorderThickness="1" 
+               CornerRadius="4" 
+               Padding="12,8" 
+               Margin="0,8,0,0"
+               Visibility="{Binding HasValidationErrors, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⚠️" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding ValidationMessage}" 
+                          Style="{StaticResource ValidationErrorStyle}"
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="3" 
+                   Orientation="Horizontal" 
+                   HorizontalAlignment="Right" 
+                   Margin="0,16,0,0">
+            
+            <!-- Loading Indicator -->
+            <StackPanel Orientation="Horizontal" 
+                       Margin="0,0,16,0"
+                       Visibility="{Binding IsSaving, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock Text="⏳" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="Đang lưu..." 
+                          VerticalAlignment="Center" 
+                          Foreground="#7F8C8D"/>
+            </StackPanel>
+
+            <!-- Cancel Button -->
+            <Button Content="{Binding CancelButtonText}"
+                   Style="{StaticResource SecondaryButtonStyle}"
+                   Command="{Binding CancelCommand}"
+                   Margin="0,0,12,0"
+                   Width="100"
+                   ToolTip="Hủy bỏ các thay đổi và đóng dialog"/>
+
+            <!-- Save Button -->
+            <Button Content="{Binding SaveButtonText}"
+                   Style="{StaticResource PrimaryButtonStyle}"
+                   Command="{Binding SaveCommand}"
+                   IsDefault="True"
+                   Width="140"
+                   ToolTip="Lưu thay đổi"/>
+        </StackPanel>
+    </Grid>
+</Window>

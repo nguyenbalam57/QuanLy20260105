@@ -1,0 +1,367 @@
+﻿<Window x:Class="ManagementFile.App.Views.LogInOut.LoginView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ManagementFile.App.Views.LogInOut"
+        mc:Ignorable="d"
+        Title="Đăng Nhập - Management File System" 
+        Height="800" Width="450"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#f5f5f5">
+
+    <Window.Resources>
+
+        <!-- Add local BooleanToVisibilityConverter -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+        <!-- Styles for modern UI -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="4"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1976D2"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#0D47A1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#CCCCCC"/>
+                                <Setter Property="Foreground" Value="#888888"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#2196F3"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#2196F3"/>
+        </Style>
+
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#DDDDDD"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Padding="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#2196F3"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModernPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#DDDDDD"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Padding="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#2196F3"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ErrorText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#F44336"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+        </Style>
+
+        <Style x:Key="StatusText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#666666"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Background -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#f5f5f5" Offset="0"/>
+                <GradientStop Color="#e0e0e0" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Main Content -->
+        <Border Background="White" 
+                CornerRadius="8" 
+                Margin="20">
+            <Border.Effect>
+                <DropShadowEffect Color="#CCCCCC" BlurRadius="15" ShadowDepth="5" Opacity="0.3"/>
+            </Border.Effect>
+            <Grid Margin="40">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,30">
+                    <!-- Logo/Icon -->
+                    <Ellipse Width="80" Height="80" Fill="#2196F3" Margin="0,0,0,20">
+                        <Ellipse.Effect>
+                            <DropShadowEffect Color="#2196F3" BlurRadius="10" ShadowDepth="0" Opacity="0.3"/>
+                        </Ellipse.Effect>
+                    </Ellipse>
+                    
+                    <TextBlock Text="Management File System" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="#333333"
+                               HorizontalAlignment="Center"/>
+                    
+                    <TextBlock Text="Hệ thống quản lý file dự án" 
+                               FontSize="14" 
+                               Foreground="#666666"
+                               HorizontalAlignment="Center"
+                               Margin="0,5,0,0"/>
+                </StackPanel>
+
+                <!-- Form -->
+                <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                    <!-- Username/Email -->
+                    <Label Content="Tên đăng nhập" 
+                           FontWeight="Medium" 
+                           Margin="0,0,0,5"/>
+                    <TextBox x:Name="UsernameTextBox"
+                             Text="{Binding UsernameOrEmail, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource ModernTextBox}"
+                             TabIndex="1"
+                             KeyDown="TextBox_KeyDown"/>
+
+                    <!-- Password -->
+                    <Label Content="Mật khẩu:" 
+                           FontWeight="Medium" 
+                           Margin="0,20,0,5"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="40"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- PasswordBox (Hidden mode) -->
+                        <PasswordBox x:Name="PasswordBox"
+                 Grid.Column="0"
+                 Style="{StaticResource ModernPasswordBox}"
+                 TabIndex="2"
+                 PasswordChanged="PasswordBox_PasswordChanged"
+                 KeyDown="TextBox_KeyDown">
+                            <PasswordBox.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </PasswordBox.RenderTransform>
+                        </PasswordBox>
+
+                        <!-- TextBox (Visible mode) -->
+                        <TextBox x:Name="VisiblePasswordTextBox"
+             Grid.Column="0"
+             Style="{StaticResource ModernTextBox}"
+             TabIndex="2"
+             TextChanged="VisiblePasswordTextBox_TextChanged"
+             KeyDown="TextBox_KeyDown"
+             Visibility="Collapsed">
+                            <TextBox.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </TextBox.RenderTransform>
+                        </TextBox>
+
+                        <!-- Animated Toggle Button -->
+                        <Button Grid.Column="1"
+            x:Name="TogglePasswordButton"
+            Width="36"
+            Height="36"
+            Background="Transparent"
+            BorderThickness="0"
+            Cursor="Hand"
+            Click="TogglePasswordVisibility_Click"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center">
+                            <Button.ToolTip>
+                                <ToolTip>
+                                    <StackPanel>
+                                        <TextBlock Text="Hiển thị/Ẩn mật khẩu" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Click để chuyển đổi" FontSize="11" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </ToolTip>
+                            </Button.ToolTip>
+
+                            <TextBlock x:Name="TogglePasswordIcon"
+                                       Text="👁️"
+                                       FontSize="18"
+                                       Foreground="{StaticResource SoftGray}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <TextBlock.RenderTransform>
+                                    <RotateTransform x:Name="IconRotation" Angle="0"/>
+                                </TextBlock.RenderTransform>
+                            </TextBlock>
+
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="4"
+                                    Padding="6">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource LightBlue}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource MediumGray}"/>
+                                        </Trigger>
+                                        </Style.Triggers>
+                                </Style>
+                                </Button.Style>
+                        </Button>
+                    </Grid>
+
+
+                    <!-- Remember Me --><!--
+                    <CheckBox IsChecked="{Binding RememberMe}"
+                              Content="Ghi nhớ đăng nhập"
+                              Margin="0,15,0,0"
+                              FontSize="13"/>-->
+
+                    <!-- Error Message -->
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Style="{StaticResource ErrorText}"
+                               Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <!-- Login Button -->
+                    <Button Content="Đăng Nhập"
+                            Command="{Binding LoginCommand}"
+                            Style="{StaticResource ModernButton}"
+                            IsDefault="True"
+                            Margin="0,25,0,0"
+                            Height="45"
+                            TabIndex="3"
+                            Click="LoginButton_Click"/>
+
+                    <!-- Loading Indicator -->
+                    <StackPanel Orientation="Horizontal" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="0,-300,0,0"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="●" FontSize="20" Foreground="#2196F3">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform x:Name="LoadingRotation"/>
+                            </TextBlock.RenderTransform>
+                            <TextBlock.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetName="LoadingRotation"
+                                                           Storyboard.TargetProperty="Angle"
+                                                           From="0" To="360" Duration="0:0:1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </TextBlock.Triggers>
+                        </TextBlock>
+                        <TextBlock Text="Đang đăng nhập..." 
+                                   Margin="10,0,0,0" 
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Footer -->
+                <StackPanel Grid.Row="2" Margin="0,30,0,0">
+                    <!-- Status Message -->
+                    <TextBlock Text="{Binding StatusMessage}"
+                               Style="{StaticResource StatusText}"
+                               Margin="0,0,0,15"/>
+
+                    <!-- Action Buttons -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Kiểm tra kết nối"
+                                Command="{Binding CheckConnectionCommand}"
+                                Style="{StaticResource SecondaryButton}"
+                                Margin="0,0,10,0"
+                                Padding="15,8"
+                                Click="CheckConnectionButton_Click"/>
+                        
+                        <Button Content="Thoát"
+                                Command="{Binding ExitCommand}"
+                                Style="{StaticResource SecondaryButton}"
+                                Padding="15,8"
+                                Click="ExitButton_Click"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <!-- Version Info -->
+                        <TextBlock Text="Version " 
+                                   FontSize="10" 
+                                   Foreground="#AAAAAA"/>
+                        <TextBlock Text="{Binding AppVersion}" 
+                                   FontSize="10" 
+                                   Foreground="#AAAAAA"/>
+                    </StackPanel>
+                    
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

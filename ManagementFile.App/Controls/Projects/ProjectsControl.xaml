@@ -1,0 +1,535 @@
+﻿<UserControl x:Class="ManagementFile.App.Controls.Projects.ProjectsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ManagementFile.App.Controls.Projects"
+             xmlns:converters="clr-namespace:ManagementFile.App.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1200">
+
+    <UserControl.Resources>
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanConverter"/>
+        <converters:LevelToMarginConverter x:Key="LevelToMarginConverter"/>
+        <converters:BooleanToFontWeightConverter x:Key="BooleanToFontWeightConverter"/>
+        <converters:BooleanToBackgroundConverter x:Key="BooleanToBackgroundConverter"/>
+        <converters:BooleanToColorConverter x:Key="BooleanToColorConverter"/>
+        <converters:InitialsConverter x:Key="InitialsConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Filter Bar -->
+            <RowDefinition Height="*"/>
+            <!-- Projects Grid -->
+            <RowDefinition Height="Auto"/>
+            <!-- Footer -->
+        </Grid.RowDefinitions>
+
+        <!-- Projects Filter Bar -->
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="🔍 Tìm kiếm:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBox x:Name="SearchBox" 
+                             Width="200" 
+                             VerticalAlignment="Center"
+                             Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
+                             TextChanged="SearchBox_TextChanged"
+                             Style="{StaticResource WatermarkTextBox}"
+                             Tag="Nhập tên hoặc mã dự án..."/>
+
+                    <TextBlock Text="📊 Trạng thái:" VerticalAlignment="Center" Margin="10,0,10,0"/>
+                    <ComboBox x:Name="StatusFilter" 
+                              Style="{StaticResource ModernComboBox}"
+                              Width="200"
+                              SelectionChanged="StatusFilter_SelectionChanged"
+                              ItemsSource="{Binding ProjectStatusItems}"
+                              SelectedValue="{Binding SelectedStatus}"
+                              DisplayMemberPath="ShortDisplayText"
+                              SelectedValuePath="Value"/>
+
+                    <TextBlock Text="{Binding ProjectFilterInfo}" 
+                               VerticalAlignment="Center" 
+                               Margin="20,0,0,0"
+                               Foreground="#7f8c8d"
+                               FontSize="12"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <!-- Refresh Button -->
+                    <Button Content="🔄 Làm mới" 
+                            Command="{Binding RefreshProjectsCommand}"
+                            ToolTip="Tải lại danh sách dự án"
+                            Style="{StaticResource SmallButton}"
+                            Background="Transparent"
+                            Foreground="#3498DB"
+                            BorderThickness="0"
+                            Margin="0,0,5,0"/>
+
+                    <!-- Add Project Button -->
+                    <Button Content="➕ Thêm Dự Án" 
+                            Style="{StaticResource SuccessButtonStyle}"
+                            Command="{Binding AddProjectCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Projects List with Hierarchy -->
+        <Border Grid.Row="1" Margin="0" Style="{StaticResource CardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Enhanced DataGrid with Hierarchy Support -->
+                <DataGrid Grid.Row="0"
+                          x:Name="ProjectsList" 
+                          Style="{StaticResource ModernDataGrid}"
+                          RowStyle="{StaticResource HierarchyDataGridRow}"
+                          ItemsSource="{Binding FlattenedProjects}"
+                          SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          Loaded="ProjectsList_Loaded"
+                          Visibility="{Binding HasProjects, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                    <DataGrid.Columns>
+                        <!-- Enhanced Hierarchy Column with Visual Indicators -->
+                        <DataGridTemplateColumn Header="🌳 Hierarchy" MinWidth="120" CanUserResize="True" CanUserSort="False">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Background="{Binding LevelBackground}">
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLoadMorePlaceholderRow}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                        <Border BorderBrush="{Binding HierarchyBorderBrush}"
+                                                BorderThickness="{Binding HierarchyBorderThickness}"
+                                                Padding="4,2">
+                                            <StackPanel Orientation="Horizontal">
+                                                <!-- Indent Spacer based on level -->
+                                                <Border Width="{Binding IndentWidth}" 
+                                                        Height="20"
+                                                        Background="Transparent"/>
+
+                                                <!-- Hierarchy Connection Lines -->
+                                                <Canvas Width="20" Height="20" Margin="0,0,2,0"
+                                                        Visibility="{Binding IsChild, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <!-- Vertical line from parent -->
+                                                    <Line X1="10" Y1="0" X2="10" Y2="10"
+                                                          Stroke="#CED4DA"
+                                                          StrokeThickness="1"/>
+                                                    <!-- Horizontal line to content -->
+                                                    <Line X1="10" Y1="10" X2="20" Y2="10"
+                                                          Stroke="#CED4DA"
+                                                          StrokeThickness="1"/>
+                                                </Canvas>
+
+                                                <!-- Expand/Collapse Button -->
+                                                <Button Content="{Binding ExpandCollapseIcon}" 
+                                                        Width="20" Height="20" 
+                                                        FontSize="8" 
+                                                        FontWeight="Bold"
+                                                        Background="Transparent" 
+                                                        BorderThickness="0"
+                                                        Foreground="{Binding ExpandCollapseColor}"
+                                                        ToolTip="{Binding ExpandCollapseTooltip}"
+                                                        Visibility="{Binding CanExpand, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                        Click="ExpandChildrenButton_Click"
+                                                        Tag="{Binding}"
+                                                        Cursor="Hand"
+                                                        Margin="0,0,4,0">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button">
+                                                            <Setter Property="Template">
+                                                                <Setter.Value>
+                                                                    <ControlTemplate TargetType="Button">
+                                                                        <Border Background="{TemplateBinding Background}"
+                                                                                BorderBrush="#ADB5BD"
+                                                                                BorderThickness="1"
+                                                                                CornerRadius="3"
+                                                                                Padding="2">
+                                                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                                              VerticalAlignment="Center"/>
+                                                                        </Border>
+                                                                        <ControlTemplate.Triggers>
+                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                <Setter Property="Background" Value="#E9ECEF"/>
+                                                                            </Trigger>
+                                                                            <Trigger Property="IsPressed" Value="True">
+                                                                                <Setter Property="Background" Value="#DEE2E6"/>
+                                                                            </Trigger>
+                                                                        </ControlTemplate.Triggers>
+                                                                    </ControlTemplate>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+
+                                                <!-- Spacer for non-expandable items -->
+                                                <Border Width="20" Height="20" 
+                                                        Margin="0,0,4,0"
+                                                        Visibility="{Binding CanExpand, Converter={StaticResource InverseBooleanConverter}}"/>
+
+                                                <!-- Child Icon for nested projects -->
+                                                <TextBlock Text="↳" 
+                                                           FontSize="14"
+                                                           Foreground="#6C757D"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,4,0"
+                                                           Visibility="{Binding IsChild, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                                <!-- Level Badge -->
+                                                <Border Background="{Binding LevelBadgeColor}"
+                                                        CornerRadius="3"
+                                                        Padding="6,2"
+                                                        Margin="0,0,4,0"
+                                                        ToolTip="{Binding LevelTooltip}">
+                                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding LevelIcon}" 
+                                                                   Foreground="White"
+                                                                   FontSize="10"
+                                                                   Margin="0,0,2,0"/>
+                                                        <TextBlock Text="{Binding HierarchyLevel}" 
+                                                                   Foreground="White"
+                                                                   FontSize="9"
+                                                                   FontWeight="Bold"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <!-- Loading Indicator for Children -->
+                                                <Border Background="#E3F2FD"
+                                                        BorderBrush="#2196F3"
+                                                        BorderThickness="1"
+                                                        CornerRadius="3"
+                                                        Padding="4,2"
+                                                        Margin="4,0,0,0"
+                                                        Visibility="{Binding IsLoadingChildren, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="⏳" FontSize="10" Margin="0,0,2,0"/>
+                                                        <TextBlock Text="Loading..." 
+                                                                   FontSize="8"
+                                                                   Foreground="#1976D2"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Project Status Icon -->
+                        <DataGridTemplateColumn Header="📊" Width="50">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="{Binding StatusColor}" 
+                                            CornerRadius="12" 
+                                            Width="24" Height="24"
+                                            HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding StatusIcon}" 
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="10"
+                                                   Foreground="White"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Project Code -->
+                        <DataGridTextColumn Header="ID" 
+                                            Binding="{Binding IdText}" 
+                                            MinWidth="30"
+                                            CanUserSort="True"/>
+
+                        <!-- Project Name -->
+                        <DataGridTemplateColumn Header="Tên dự án" 
+                                                Width="*" 
+                                                MinWidth="200" 
+                                                CanUserSort="True" 
+                                                SortMemberPath="ProjectName">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid>
+
+                                        <!-- Load More Row Content -->
+                                        <Border Background="Transparent"
+                                                Padding="10,5"
+                                                ToolTip="{Binding Description}"
+                                                Visibility="{Binding IsLoadMorePlaceholderRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <TextBlock Text="▼" 
+                                               FontSize="14" 
+                                               FontWeight="Bold"
+                                               Foreground="{Binding LoadMoreRowForeground}"
+                                               Margin="0,0,8,0"
+                                               VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding LoadMoreRowDisplayText}" 
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="{Binding LoadMoreRowForeground}"
+                                               VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+
+
+                                        <TextBlock Text="{Binding ProjectName}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="13"
+                                                   FontWeight="{Binding IsRootProject, Converter={StaticResource BooleanToFontWeightConverter}}"
+                                                   ToolTip="{Binding Description}"
+                                                   Margin="4,4,4,4"
+                                                   Visibility="{Binding IsLoadMorePlaceholderRow, Converter={StaticResource InverseBooleanConverter}}"/>
+                                    </Grid>
+                                    
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Project Manager -->
+                        <DataGridTemplateColumn Header="Quản lý" 
+                                                Width="150">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Background="#6F42C1" Width="24" Height="24" CornerRadius="12" Margin="0,0,6,0">
+                                            <TextBlock Text="{Binding ProjectManagerName, Converter={StaticResource InitialsConverter}}"
+                                                       Foreground="White"
+                                                       FontSize="10"
+                                                       FontWeight="Bold"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{Binding ProjectManagerName}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="12"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Status -->
+                        <DataGridTemplateColumn Header="Trạng thái" 
+                                                Width="120" 
+                                                CanUserSort="True" 
+                                                SortMemberPath="Status">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="{Binding StatusBadgeColor}" 
+                                            CornerRadius="10" 
+                                            Padding="8,2">
+                                        <TextBlock Text="{Binding StatusDisplay}" 
+                                                   Foreground="White" 
+                                                   FontSize="11" 
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Progress -->
+                        <DataGridTemplateColumn Header="Tiến độ" 
+                                                Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="4">
+                                        <ProgressBar Value="{Binding CompletionPercentage, Mode=OneWay}" 
+                                                     Minimum="0"
+                                                     Maximum="100"
+                                                     Height="12" 
+                                                     Background="#ecf0f1"
+                                                     Foreground="#3498db"
+                                                     BorderThickness="1"
+                                                     BorderBrush="#bdc3c7"/>
+                                        <TextBlock Text="{Binding ProgressText}"
+                                                   FontSize="9" 
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,2,0,0"
+                                                   Foreground="#34495e"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Tasks Summary -->
+                        <DataGridTextColumn Header="Tasks" 
+                                            Binding="{Binding TasksSummary}" 
+                                            Width="80"/>
+                        <!-- Tasks Summary -->
+                        <DataGridTextColumn Header="Dự kiến (h)" 
+                                            Binding="{Binding EstimatedHours}" 
+                                            MinWidth="80"/>
+                        <!-- Tasks Summary -->
+                        <DataGridTextColumn Header="Thực tế (h)" 
+                                            Binding="{Binding ActualHours}" 
+                                            MinWidth="80"/>
+
+                        <!-- Members -->
+                        <DataGridTemplateColumn Header="Thành viên" 
+                                                Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="#E8F5E9"
+                                            CornerRadius="12"
+                                            Padding="8,2"
+                                            HorizontalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <TextBlock Text="👥" FontSize="10" Margin="0,0,3,0"/>
+                                            <TextBlock Text="{Binding TotalMembers}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="#2E7D32"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Due Date -->
+                        <DataGridTextColumn Header="Hạn chót" 
+                                            Binding="{Binding DueDateDisplayText}" 
+                                            Width="120"/>
+
+                        <!-- Created Date -->
+                        <DataGridTextColumn Header="Ngày tạo" 
+                                            Binding="{Binding CreatedAtDisplayText}" 
+                                            Width="120"/>
+
+                        <!-- Actions Column -->
+                        <DataGridTemplateColumn Header="Thao tác" 
+                                                Width="120" 
+                                                CanUserResize="False">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Content="📋"
+                                                Width="24" Height="24"
+                                                FontSize="11"
+                                                ToolTip="Xem công việc"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Foreground="#007BFF"
+                                                Command="{Binding DataContext.ViewProjectTasksCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+
+                                        <Button Content="✏️"
+                                                Width="24" Height="24"
+                                                FontSize="11"
+                                                ToolTip="Chỉnh sửa"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Foreground="#3498DB"
+                                                Command="{Binding DataContext.EditProjectCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Content="👁️"
+                                                Width="24" Height="24"
+                                                FontSize="11"
+                                                ToolTip="Xem chi tiết"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Foreground="#28A745"
+                                                Command="{Binding DataContext.ViewProjectDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                                                            <Setter Property="Foreground" Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Loading More Indicator -->
+                <Border Grid.Row="1"
+                        x:Name="LoadingMoreIndicator"
+                        Background="#F8F9FA"
+                        BorderBrush="#E8E8E8"
+                        BorderThickness="0,1,0,0"
+                        Padding="10"
+                        Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="⏳" FontSize="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Đang tải thêm dự án..." 
+                                   FontSize="13" 
+                                   Foreground="#6C757D"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Footer Summary -->
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Margin="0,0,0,5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="📝 Đã chọn:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding SelectedProjectInfo}" 
+                               VerticalAlignment="Center" 
+                               FontWeight="SemiBold"
+                               Foreground="#2c3e50"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding ProjectSummaryText}" 
+                               VerticalAlignment="Center" 
+                               Foreground="#7f8c8d"
+                               FontSize="12"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

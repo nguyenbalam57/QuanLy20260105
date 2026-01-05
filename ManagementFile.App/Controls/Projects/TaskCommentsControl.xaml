@@ -1,0 +1,785 @@
+﻿<UserControl x:Class="ManagementFile.App.Controls.TaskCommentsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ManagementFile.App.Controls"
+             xmlns:converters="clr-namespace:ManagementFile.App.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="1200">
+
+    <UserControl.Resources>
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanConverter"/>
+        <converters:LevelToMarginConverter x:Key="LevelToMarginConverter"/>
+        <converters:HasRepliesConverter x:Key="HasRepliesConverter"/>
+        <converters:BooleanToFontWeightConverter x:Key="BooleanToFontWeightConverter"/>
+        <converters:BooleanToBackgroundConverter x:Key="BooleanToBackgroundConverter"/>
+        <converters:BooleanToColorConverter x:Key="BooleanToColorConverter"/>
+        <converters:BooleanToDiscussionIconConverter x:Key="BooleanToDiscussionIconConverter"/>
+        <converters:BooleanToCheckmarkConverter x:Key="BooleanToCheckmarkConverter"/>
+        <converters:BooleanToBlockingIconConverter x:Key="BooleanToBlockingIconConverter"/>
+
+        
+    </UserControl.Resources>
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+
+            <StackPanel Grid.Column="1" >
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+
+                        <!-- Search Box -->
+                        <TextBlock Text="🔍 Tìm kiếm:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox x:Name="SearchBox" 
+                               Width="200"
+                               Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
+                               Style="{StaticResource WatermarkTextBox}"
+                               Tag="Nhập tên hoặc mã comment..."/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10, 0">
+                                <TextBlock Text="📊 Loại bình luận:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <!-- Comment Type Filter -->
+                                <ComboBox x:Name="CommentTypeFilter"
+                                          Style="{StaticResource ModernComboBox}"
+                                          ItemsSource="{Binding CommentTypes}"
+                                          SelectedValue="{Binding SelectCommentType, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="DisplayText"
+                                          SelectedValuePath="Value"
+                                          ToolTip="Phân loại bình luận"
+                                          MinWidth="120"/>
+
+                            </StackPanel>
+
+                            <!-- Status Filter -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10, 0">
+                                <TextBlock Text="📊 Độ ưu tiên:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <!-- Comment Type Filter -->
+                                <ComboBox x:Name="PriorityFilter"
+                                          Style="{StaticResource ModernComboBox}"
+                                          ItemsSource="{Binding PriorityItems}"
+                                          SelectedValue="{Binding SelectPriority, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="DisplayText"
+                                          SelectedValuePath="Value"
+                                          ToolTip="Độ ưu tiên bình luận"
+                                          MinWidth="120"/>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10, 0">
+                                <TextBlock Text="📊 Trạng thái:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <!-- Comment Type Filter -->
+                                <ComboBox x:Name="StatusFilter"
+                                          Style="{StaticResource ModernComboBox}"
+                                          ItemsSource="{Binding StatusItems}"
+                                          SelectedValue="{Binding SelectStatus, UpdateSourceTrigger=PropertyChanged}"
+                                          DisplayMemberPath="DisplayText"
+                                          SelectedValuePath="Value"
+                                          ToolTip="Trạng thái bình luận"
+                                          MinWidth="120"/>
+
+                            </StackPanel>
+
+                        </Grid>
+                    </StackPanel>
+
+                </Grid>
+
+            </StackPanel>
+
+        </Border>
+        
+        <!-- Comments Header with Enhanced Actions -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Column Display Options -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <!-- Column Visibility Dropdown Button -->
+                    <Button x:Name="ColumnVisibilityButton"
+                 Content="⚙️ Tùy chọn cột"
+                 Background="Transparent"
+                 Foreground="#6C757D"
+                 BorderBrush="#6C757D"
+                 BorderThickness="1"
+                 Padding="10,5"
+                 FontSize="12"
+                 Height="30"
+                 Click="ColumnVisibilityButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource SmallButton}">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="#6C757D"/>
+                                <Setter Property="BorderBrush" Value="#6C757D"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                                         BorderBrush="{TemplateBinding BorderBrush}"
+                                         BorderThickness="{TemplateBinding BorderThickness}"
+                                         CornerRadius="4"
+                                         Padding="{TemplateBinding Padding}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <ContentPresenter VerticalAlignment="Center"/>
+                                                    <TextBlock x:Name="DropdownArrow" 
+                                                    Text="▼" 
+                                                    FontSize="10" 
+                                                    Margin="5,0,0,0" 
+                                                    VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F8F9FA"/>
+                                                    <Setter Property="BorderBrush" Value="#495057"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter Property="Background" Value="#E9ECEF"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                </StackPanel>
+
+                <!-- Action Buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <!-- Full Refresh - Reload all pages + replies -->
+                    <Button Content="🔄 Làm mới đầy đủ" 
+     Command="{Binding RefreshCommentsCommand}"
+     ToolTip="Tải lại tất cả bình luận và replies đã hiển thị"
+     Style="{StaticResource SmallButton}"
+     Background="Transparent"
+     Foreground="#3498DB"
+     BorderThickness="0"
+     Margin="0,0,5,0"/>
+
+                    <!-- NEW: Light Refresh - Only check for new replies -->
+                    <Button x:Name="LightRefreshButton"
+     Content="⚡ Làm mới nhanh" 
+     Click="LightRefreshButton_Click"
+     ToolTip="Chỉ kiểm tra reply mới, không reload lại tất cả"
+     Style="{StaticResource SmallButton}"
+     Background="Transparent"
+     Foreground="#28A745"
+     BorderThickness="0"
+     Margin="0,0,5,0"/>
+
+                    <!-- Hard Refresh -->
+                    <Button x:Name="HardRefreshButton"
+     Content="🔃 Reset" 
+     Click="HardRefreshButton_Click"
+     ToolTip="Reset và chỉ hiển thị trang đầu tiên"
+     Style="{StaticResource SmallButton}"
+     Background="Transparent"
+     Foreground="#E74C3C"
+     BorderThickness="0"
+     Margin="0,0,5,0"/>
+
+                    <Button Content="➕ Thêm bình luận" 
+     Command="{Binding AddCommentCommand}"
+     Style="{StaticResource SuccessButtonStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Enhanced DataGrid with All Columns -->
+                    <DataGrid Grid.Row="0"
+                            x:Name="CommentsDataGrid" 
+                            Style="{StaticResource ModernDataGrid}"
+                            RowStyle="{StaticResource HierarchyDataGridRow}"
+                            ItemsSource="{Binding FlattenedComments}"
+                            SelectedItem="{Binding SelectedComment, Mode=TwoWay}"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="False"
+                            IsReadOnly="True"
+                            SelectionMode="Single"
+                            Loaded="CommentsDataGrid_Loaded"
+                            Visibility="{Binding HasComments, Converter={StaticResource BooleanToVisibilityConverter}}" >
+
+                        <DataGrid.Columns>
+                            <!-- Enhanced Hierarchy Column with Visual Indicators and Reply Loading -->
+                            <DataGridTemplateColumn Header="🌳 Hierarchy" MinWidth="120" CanUserResize="True" CanUserSort="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Background="{Binding LevelBackground}">
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLoadMorePlaceholderRow}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
+                                        <Border BorderBrush="{Binding HierarchyBorderBrush}"
+                                                BorderThickness="{Binding HierarchyBorderThickness}"
+                                                Padding="4,2">
+                                                <StackPanel Orientation="Horizontal">
+
+                                                    <!-- Indent Spacer based on level -->
+                                                    <Border Width="{Binding IndentWidth}" 
+                                                            Height="20"
+                                                            Background="Transparent"/>
+
+                                                    <!-- Hierarchy Connection Lines -->
+                                                    <Canvas Width="20" Height="20" Margin="0,0,2,0"
+                                                            Visibility="{Binding IsReply, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <!-- Vertical line from parent -->
+                                                        <Line X1="10" Y1="0" X2="10" Y2="10"
+                                                              Stroke="#CED4DA"
+                                                              StrokeThickness="1"/>
+                                                        <!-- Horizontal line to content -->
+                                                        <Line X1="10" Y1="10" X2="20" Y2="10"
+                                                              Stroke="#CED4DA"
+                                                              StrokeThickness="1"/>
+                                                    </Canvas>
+
+                                                    <!-- Expand/Collapse Button -->
+                                                    <Button Content="{Binding ExpandCollapseIcon}" 
+                                                            Width="20" Height="20" 
+                                                            FontSize="8" 
+                                                            FontWeight="Bold"
+                                                            Background="Transparent" 
+                                                            BorderThickness="0"
+                                                            Foreground="{Binding ExpandCollapseColor}"
+                                                            ToolTip="{Binding ExpandCollapseTooltip}"
+                                                            Visibility="{Binding CanExpand, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                            Click="ExpandRepliesButton_Click"
+                                                            Tag="{Binding}"
+                                                            Cursor="Hand"
+                                                            Margin="0,0,4,0">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Template">
+                                                                    <Setter.Value>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="#ADB5BD"
+                                                BorderThickness="1"
+                                                CornerRadius="3"
+                                                Padding="2">
+                                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter Property="Background" Value="#E9ECEF"/>
+                                                                                </Trigger>
+                                                                                <Trigger Property="IsPressed" Value="True">
+                                                                                    <Setter Property="Background" Value="#DEE2E6"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+
+                                                    <!-- Spacer for non-expandable items -->
+                                                    <Border Width="20" Height="20" 
+                        Margin="0,0,4,0"
+                        Visibility="{Binding CanExpand, Converter={StaticResource InverseBooleanConverter}}"/>
+
+                                                    <!-- Reply Icon for nested comments -->
+                                                    <TextBlock Text="↳" 
+                           FontSize="14"
+                           Foreground="#6C757D"
+                           VerticalAlignment="Center"
+                           Margin="0,0,4,0"
+                           Visibility="{Binding IsReply, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                                    <!-- Level Badge -->
+                                                    <Border Background="{Binding LevelBadgeColor}"
+                        CornerRadius="3"
+                        Padding="6,2"
+                        Margin="0,0,4,0"
+                        ToolTip="{Binding LevelTooltip}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding LevelIcon}" 
+                                   Foreground="White"
+                                   FontSize="10"
+                                   Margin="0,0,2,0"/>
+                                                            <TextBlock Text="{Binding HierarchyLevel}" 
+                                   Foreground="White"
+                                   FontSize="9"
+                                   FontWeight="Bold"/>
+                                                        </StackPanel>
+                                                    </Border>
+
+                                                    <!-- Reply Count Badge -->
+                                                    <!--<Border Background="#FFF3E0"
+                        BorderBrush="#FF9800"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="6,2"
+                        Visibility="{Binding HasReplies, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        ToolTip="{Binding ReplyCountTooltip}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="💬" FontSize="10" Margin="0,0,2,0"/>
+                                                            <TextBlock Text="{Binding ReplyCount}" 
+                                   FontSize="9"
+                                   FontWeight="SemiBold"
+                                   Foreground="#E65100"/>
+                                                        </StackPanel>
+                                                    </Border>-->
+
+                                                    <!-- Loading Indicator for Replies -->
+                                                    <Border Background="#E3F2FD"
+                        BorderBrush="#2196F3"
+                        BorderThickness="1"
+                        CornerRadius="3"
+                        Padding="4,2"
+                        Margin="4,0,0,0"
+                        Visibility="{Binding IsLoadingReplies, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="⏳" FontSize="10" Margin="0,0,2,0"/>
+                                                            <TextBlock Text="Loading..." 
+                                   FontSize="8"
+                                   Foreground="#1976D2"/>
+                                                        </StackPanel>
+                                                    </Border>
+
+                                                </StackPanel>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- ID Column -->
+                            <DataGridTextColumn Header="ID" 
+                                                Binding="{Binding IdText}"
+                                                MinWidth="30"
+                                                x:Name="IdColumn"
+                                                CanUserSort="True">
+                                <DataGridTextColumn.HeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.HeaderStyle>
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+
+                            <!-- Enhanced Content Column with Better Hierarchy Display -->
+                            <DataGridTemplateColumn Header="Nội dung" 
+                                                    Width="*" 
+                                                    MinWidth="200" 
+                                                    x:Name="ContentColumn" 
+                                                    CanUserSort="True" 
+                                                    SortMemberPath="Content">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid Background="{Binding LevelBackground}">
+
+                                        <!-- Load More Row Content -->
+                                        <Border Background="Transparent"
+                                                Padding="10,5"
+                                                ToolTip="{Binding Description}"
+                                                Visibility="{Binding IsLoadMorePlaceholderRow, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                       <TextBlock Text="▼" 
+                                               FontSize="14" 
+                                               FontWeight="Bold"
+                                               Foreground="{Binding LoadMoreRowForeground}"
+                                               Margin="0,0,8,0"
+                                               VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding LoadMoreRowDisplayText}" 
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="{Binding LoadMoreRowForeground}"
+                                               VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <StackPanel Margin="4,4,4,4" 
+                                                    Visibility="{Binding IsLoadMorePlaceholderRow, Converter={StaticResource InverseBooleanConverter}}">
+
+                                                <!-- Main Content -->
+                                                <TextBlock Text="{Binding ContentSummary}"
+                                                           TextWrapping="Wrap"
+                                                           FontSize="13"
+                                                           Foreground="Black"
+                                                           ToolTip="{Binding Content}"/>
+                                        </StackPanel>
+
+                                            
+
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Comment Type Column -->
+                            <DataGridTemplateColumn Header="Loại" Width="120" x:Name="TypeColumn" CanUserSort="True" SortMemberPath="CommentType">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate >
+                                        <Border Background="{Binding CommentTypeBadgeColor}"
+                            CornerRadius="10"
+                            Padding="6,2"
+                            HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding CommentTypeBadgeText}"
+                                                       Foreground="White"
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Author Column -->
+                            <DataGridTemplateColumn Header="Người tạo" Width="150" x:Name="AuthorColumn" CanUserSort="True" SortMemberPath="CreatedByName">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Background="#6F42C1" Width="24" Height="24" CornerRadius="12" Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding CreatedByAvatar}"
+                                       Foreground="White"
+                                       FontSize="10"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding CreatedByName}"
+                                   FontWeight="SemiBold"
+                                   FontSize="12"
+                                   VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Created Time Column -->
+                            <DataGridTemplateColumn Header="Thời gian" Width="120" x:Name="TimeColumn" CanUserSort="True" SortMemberPath="CreatedAt">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="{Binding RelativeTimeText}"
+                                   FontSize="12"/>
+                                            <TextBlock Text="{Binding FormattedCreatedAt}"
+                                   FontSize="10"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Status Column -->
+                            <DataGridTemplateColumn Header="Trạng thái" Width="120" x:Name="StatusColumn" CanUserSort="True" SortMemberPath="CommentStatus">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding StatusColor}"
+                            CornerRadius="8"
+                            Padding="5,2">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding StatusIcon}"
+                                       FontSize="12"
+                                       Margin="0,0,3,0"/>
+                                                <TextBlock Text="{Binding StatusDisplayName}"
+                                       Foreground="White"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Priority Column -->
+                            <DataGridTemplateColumn Header="Ưu tiên" Width="100" x:Name="PriorityColumn" CanUserSort="True" SortMemberPath="Priority">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding PriorityColor}"
+                            CornerRadius="8"
+                            Padding="5,2">
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding PriorityIcon}"
+                                       FontSize="12"
+                                       Margin="0,0,3,0"/>
+                                                <TextBlock Text="{Binding PriorityDisplayName}"
+                                       Foreground="White"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Assignee Column -->
+                            <DataGridTextColumn Header="Người thực hiện" 
+                           Binding="{Binding AssignedToName}"
+                           Width="120"
+                           x:Name="AssigneeColumn"
+                           CanUserSort="True"/>
+
+                            <!-- Reviewer Column -->
+                            <DataGridTextColumn Header="Người xác nhận" 
+                           Binding="{Binding ReviewerName}"
+                           Width="120"
+                           x:Name="ReviewerColumn"
+                           CanUserSort="True"/>
+
+                            <!-- Issue Title Column -->
+                            <DataGridTextColumn Header="Tiêu đề" 
+                           Binding="{Binding IssueTitle}"
+                           Width="150"
+                           x:Name="IssueTitleColumn"
+                           CanUserSort="True"/>
+
+                            <!-- Suggested Fix Column -->
+                            <DataGridTextColumn Header="Đề xuất cách sửa" 
+                           Binding="{Binding SuggestedFix}"
+                           Width="150"
+                           x:Name="SuggestedFixColumn"
+                           CanUserSort="True"/>
+
+                            <!-- Related Module Column -->
+                            <DataGridTextColumn Header="Liên quan đến" 
+                           Binding="{Binding RelatedModule}"
+                           Width="100"
+                           x:Name="RelatedModuleColumn"
+                           CanUserSort="True"/>
+
+                            <!-- Due Date Column -->
+                            <DataGridTemplateColumn Header="Thời hoàn thành" Width="100" x:Name="DueDateColumn" CanUserSort="True" SortMemberPath="DueDate">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding FormattedDueDate}"
+                               Foreground="{Binding DueDateColor}"
+                               FontWeight="{Binding IsOverdue, Converter={StaticResource BooleanToFontWeightConverter}}"
+                               FontSize="12"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Estimated Time Column -->
+                            <DataGridTextColumn Header="Số giờ ước tính" 
+                           Binding="{Binding FormattedEstimatedTime}"
+                           Width="80"
+                           x:Name="EstimatedTimeColumn"
+                           CanUserSort="True"/>
+
+                            <!-- Actual Time Column -->
+                            <DataGridTextColumn Header="Số giờ thực tế" 
+                           Binding="{Binding FormattedActualTime}"
+                           Width="80"
+                           x:Name="ActualTimeColumn"
+                           CanUserSort="True"/>
+
+                            <!-- Resolved Column -->
+                            <DataGridTemplateColumn Header="Đã giải quyết" Width="120" x:Name="ResolvedColumn" CanUserSort="True" SortMemberPath="IsResolved">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock  Text="{Binding IsResolved, Converter={StaticResource BooleanToCheckmarkConverter}}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    FontSize="16"
+                                                    Foreground="{Binding IsResolved, Converter={StaticResource BooleanToColorConverter}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Verified Column -->
+                            <DataGridTemplateColumn Header="Đã xác nhận" Width="80" x:Name="VerifiedColumn" CanUserSort="True" SortMemberPath="IsVerified">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IsVerified, Converter={StaticResource BooleanToCheckmarkConverter}}"
+                               HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                               FontSize="16"
+                               Foreground="{Binding IsVerified, Converter={StaticResource BooleanToColorConverter}}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Blocking Column -->
+                            <DataGridTemplateColumn Header="Đã khóa" Width="80" x:Name="BlockingColumn" CanUserSort="True" SortMemberPath="IsBlocking">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding IsBlocking, Converter={StaticResource BooleanToBlockingIconConverter}}"
+                               HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                               FontSize="16"
+                               Foreground="#E74C3C"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Discussion Column -->
+                            <DataGridTemplateColumn Header="Thảo luận" Width="80" x:Name="DiscussionColumn" CanUserSort="True" SortMemberPath="RequiresDiscussion">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding RequiresDiscussion, Converter={StaticResource BooleanToDiscussionIconConverter}}"
+                               HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                               FontSize="16"
+                               Foreground="#F39C12"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Tags Column -->
+                            <DataGridTemplateColumn Header="Tags" Width="120" x:Name="TagsColumn">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ItemsControl ItemsSource="{Binding Tags}" 
+                                 Visibility="{Binding HasTags, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <WrapPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="#6C757D"
+                                        CornerRadius="3"
+                                        Padding="3,1"
+                                        Margin="2">
+                                                        <TextBlock Text="{Binding}"
+                                               Foreground="White"
+                                               FontSize="9"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- Actions Column -->
+                            <DataGridTemplateColumn Header="Thao tác" Width="120" CanUserResize="False">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="💬"
+                                Width="24" Height="24"
+                                FontSize="11"
+                                ToolTip="Reply"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#007BFF"
+                                Click="AddReplyMenuItem_Click"
+                                Tag="{Binding}"/>
+
+                                            <Button Content="✏️"
+                                Width="24" Height="24"
+                                FontSize="11"
+                                ToolTip="Chỉnh sửa"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#3498DB"
+                                Click="EditCommentButton_Click"
+                                Tag="{Binding}"
+                                Visibility="{Binding CanEdit, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                            <Button Content="🗑️"
+                                Width="24" Height="24"
+                                FontSize="11"
+                                ToolTip="Xóa"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#E74C3C"
+                                Click="DeleteCommentButton_Click"
+                                Tag="{Binding}"
+                                Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                            <Button Content="👁️"
+                                Width="24" Height="24"
+                                FontSize="11"
+                                ToolTip="Xem chi tiết"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#28A745"
+                                Click="ViewCommentButton_Click"
+                                Tag="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                <!--</ScrollViewer>-->
+
+                <!-- Loading More Indicator -->
+                <Border Grid.Row="1"
+    x:Name="LoadingMoreIndicator"
+    Background="#F8F9FA"
+    BorderBrush="#E8E8E8"
+    BorderThickness="0,1,0,0"
+    Padding="10"
+    Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="⏳" FontSize="16" Margin="0,0,5,0"/>
+                        <TextBlock Text="Đang tải thêm bình luận..." 
+               FontSize="13" 
+               Foreground="#6C757D"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- Task Actions -->
+        <Border Grid.Row="3" Style="{StaticResource CardStyle}">
+            <Grid>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="📝 Đã chọn:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding SelectedTaskCommentInfo}" 
+                  VerticalAlignment="Center" 
+                  FontWeight="SemiBold"
+                  Foreground="#2c3e50"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+    
+</UserControl>
