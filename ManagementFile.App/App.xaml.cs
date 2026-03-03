@@ -160,7 +160,10 @@ namespace ManagementFile.App
             base.OnStartup(e);
 
             // 1. Build configuration từ appsetting.json
-            //IConfiguration configuration = new ConfigurationBuilder().
+            IConfiguration configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)     // để tìm appsettings.json trong thư mục output
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .Build();
 
             // Cấu hình Dependency Injection
             var services = new ServiceCollection();
