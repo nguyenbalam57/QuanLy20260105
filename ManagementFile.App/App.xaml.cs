@@ -24,6 +24,7 @@ using ManagementFile.App.Views.Reports;
 using ManagementFile.App.Views.Search;
 using ManagementFile.Contracts.DTOs.UserManagement;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Polly;
 using System;
 using System.Collections.Generic;
@@ -158,9 +159,16 @@ namespace ManagementFile.App
 
             base.OnStartup(e);
 
+            // 1. Build configuration từ appsetting.json
+            //IConfiguration configuration = new ConfigurationBuilder().
+
             // Cấu hình Dependency Injection
             var services = new ServiceCollection();
+
+
+
             ConfigureServices(services);
+
             _serviceProvider = services.BuildServiceProvider();
 
             // Tạo và hiển thị MainWindow với DI

@@ -1,6 +1,7 @@
-﻿using System;
+﻿using ManagementFile.App.Models.ApiOptions;
+using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,26 +15,19 @@ namespace ManagementFile.App.Services
         public int RetryAttempts { get; }
         public bool EnableLogging { get; }
 
-        public ApiConfiguration()
+        public ApiConfiguration(IOptions<ApiOptions> options)
         {
-            BaseUrl = ConfigurationManager.AppSettings["ApiBaseUrl"] ?? "http://localhost:5190";
+            var o = options.Value;
 
-            if (int.TryParse(ConfigurationManager.AppSettings["ApiTimeout"], out int timeout))
-                Timeout = TimeSpan.FromSeconds(timeout);
-            else
-                Timeout = TimeSpan.FromSeconds(60);
+            BaseUrl = string.IsNullOrWhiteSpace(o.BaseUrl) ? "http://localhost:5190" : o.BaseUrl;
 
-            if (int.TryParse(ConfigurationManager.AppSettings["ApiRetryAttempts"], out int retryAttempts))
-                RetryAttempts = retryAttempts;
-            else
-                RetryAttempts = 3;
+            Timeout = TimeSpan.FromSeconds(o.TimeoutSeconds <= 0 ? 60 : o.TimeoutSeconds);
 
-            if (bool.TryParse(ConfigurationManager.AppSettings["EnableApiLogging"], out bool enableLogging))
-                EnableLogging = enableLogging;
-            else
-                EnableLogging = true;
+            RetryAttempts = o.RetryAttempts <= 0 ? 3 : o.RetryAttempts;
 
-            System.Diagnostics.Debug.WriteLine($"🔧 ApiConfiguration loaded:");
+            EnableLogging = o.EnableLogging;
+
+            System.Diagnostics.Debug.WriteLine($"🔧 ApiConfiguration loaded (appsetting.json:");
             System.Diagnostics.Debug.WriteLine($"   BaseUrl: {BaseUrl}");
             System.Diagnostics.Debug.WriteLine($"   Timeout: {Timeout}");
             System.Diagnostics.Debug.WriteLine($"   RetryAttempts: {RetryAttempts}");
